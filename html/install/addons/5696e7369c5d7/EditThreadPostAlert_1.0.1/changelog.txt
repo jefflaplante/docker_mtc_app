@@ -1,0 +1,6 @@
+CHANGELOG:
+26/03/2013: Version 1.0.0
+- Initial Release.
+
+26/02/2015: Version 1.0.1
+- Minor bug fixes.

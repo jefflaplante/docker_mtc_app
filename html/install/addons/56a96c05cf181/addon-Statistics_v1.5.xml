@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="Statistics" title="Statistics" version_string="1.5" version_id="1" url="" install_callback_class="Andy_Statistics_Install" install_callback_method="install" uninstall_callback_class="Andy_Statistics_Uninstall" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="Andy_Statistics_Listener" callback_method="Forum" active="1" hint="XenForo_ControllerPublic_Forum" description="Statistics load_class_controller"/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="statisticsHourly" cron_class="Andy_Statistics_CronEntry_Statistics" cron_method="runHourlyStatistics" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["30"]}]]></entry>
+  </cron>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="Statistics" display_order="4000" debug_only="0"/>
+    <option option_id="showLatestMember" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="13"/>
+    </option>
+    <option option_id="showMembers" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="5"/>
+    </option>
+    <option option_id="showMembersLast30Days" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="11"/>
+    </option>
+    <option option_id="showPosts" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="3"/>
+    </option>
+    <option option_id="showPostsLast24Hours" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="9"/>
+    </option>
+    <option option_id="showThreads" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="1"/>
+    </option>
+    <option option_id="showThreadsLast24Hours" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="7"/>
+    </option>
+    <option option_id="titleLatestMember" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Latest Member</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="14"/>
+    </option>
+    <option option_id="titleMembers" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Members</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="6"/>
+    </option>
+    <option option_id="titleMembersLast30Days" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Members Last 30 Days</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="12"/>
+    </option>
+    <option option_id="titlePosts" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Posts</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="4"/>
+    </option>
+    <option option_id="titlePostsLast24Hours" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Posts Last 24 Hours</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="10"/>
+    </option>
+    <option option_id="titleThreads" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Threads</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="2"/>
+    </option>
+    <option option_id="titleThreadsLast24Hours" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>Threads Last 24 Hours</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Statistics" display_order="8"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups>
+      <permission_group permission_group_id="statisticsGroupID"/>
+    </permission_groups>
+    <permissions>
+      <permission permission_group_id="statisticsGroupID" permission_id="statisticsID" permission_type="flag" default_value="unset" interface_group_id="statisticsInterfaceGroupID" display_order="1"/>
+    </permissions>
+    <interface_groups>
+      <interface_group interface_group_id="statisticsInterfaceGroupID" display_order="300"/>
+    </interface_groups>
+  </permissions>
+  <phrases>
+    <phrase title="cron_entry_statisticsHourly" version_id="1" version_string="1.0"><![CDATA[Statistics Hourly]]></phrase>
+    <phrase title="option_group_Statistics" version_id="1" version_string="1.0"><![CDATA[Statistics]]></phrase>
+    <phrase title="option_group_Statistics_description" version_id="1" version_string="1.0"><![CDATA[Options here control the Statistics add-on.]]></phrase>
+    <phrase title="option_showLatestMember" version_id="1" version_string="1.0"><![CDATA[Latest Member]]></phrase>
+    <phrase title="option_showLatestMember_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_showMembers" version_id="1" version_string="1.0"><![CDATA[Members]]></phrase>
+    <phrase title="option_showMembersLast30Days" version_id="1" version_string="1.0"><![CDATA[Members Last 30 Days]]></phrase>
+    <phrase title="option_showMembersLast30Days_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_showMembers_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_showPosts" version_id="1" version_string="1.0"><![CDATA[Posts]]></phrase>
+    <phrase title="option_showPostsLast24Hours" version_id="1" version_string="1.0"><![CDATA[Posts Last 24 Hours]]></phrase>
+    <phrase title="option_showPostsLast24Hours_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_showPosts_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_showThreads" version_id="1" version_string="1.0"><![CDATA[Threads]]></phrase>
+    <phrase title="option_showThreadsLast24Hours" version_id="1" version_string="1.0"><![CDATA[Threads Last 24 Hours]]></phrase>
+    <phrase title="option_showThreadsLast24Hours_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_showThreads_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titleLatestMember" version_id="1" version_string="1.0"><![CDATA[Title Latest Member]]></phrase>
+    <phrase title="option_titleLatestMember_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titleMembers" version_id="1" version_string="1.0"><![CDATA[Title Members]]></phrase>
+    <phrase title="option_titleMembersLast30Days" version_id="1" version_string="1.0"><![CDATA[Title Members Last 30 Days]]></phrase>
+    <phrase title="option_titleMembersLast30Days_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titleMembers_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titlePosts" version_id="1" version_string="1.0"><![CDATA[Title Posts]]></phrase>
+    <phrase title="option_titlePostsLast24Hours" version_id="1" version_string="1.0"><![CDATA[Title Posts Last 24 Hours]]></phrase>
+    <phrase title="option_titlePostsLast24Hours_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titlePosts_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titleThreads" version_id="1" version_string="1.0"><![CDATA[Title Threads]]></phrase>
+    <phrase title="option_titleThreadsLast24Hours" version_id="1" version_string="1.0"><![CDATA[Title Threads Last 24 Hours]]></phrase>
+    <phrase title="option_titleThreadsLast24Hours_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="option_titleThreads_explain" version_id="1" version_string="1.0"></phrase>
+    <phrase title="permission_group_statisticsGroupID" version_id="1" version_string="1.3"><![CDATA[Statistics]]></phrase>
+    <phrase title="permission_interface_statisticsInterfaceGroupID" version_id="1" version_string="1.3"><![CDATA[Statistics]]></phrase>
+    <phrase title="permission_statisticsGroupID_statisticsID" version_id="1" version_string="1.3"><![CDATA[Statistics]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="andy_statistics" version_id="1" version_string="1.4"><![CDATA[<xen:if is="{$visitor.permissions.statisticsGroupID.statisticsID}">
+
+<div class="section">
+<div class="secondaryContent statsList" id="boardStats">
+<h3>{xen:phrase forum_statistics}</h3>
+<div class="pairsJustified">
+    
+    <xen:if is="{$xenOptions.showThreads}">   
+    <dl class="discussionCount"><dt>{$xenOptions.titleThreads}:</dt>
+    <dd>{xen:number $totalThreads}</dd></dl>
+    </xen:if>
+    
+    <xen:if is="{$xenOptions.showPosts}">   
+    <dl class="discussionCount"><dt>{$xenOptions.titlePosts}:</dt>
+    <dd>{xen:number $totalPosts}</dd></dl> 
+    </xen:if>
+    
+    <xen:if is="{$xenOptions.showMembers}">
+    <dl class="discussionCount"><dt>{$xenOptions.titleMembers}:</dt>
+    <dd>{xen:number $totalMembers}</dd></dl>
+    </xen:if> 
+    
+    <xen:if is="{$xenOptions.showThreadsLast24Hours}">    
+    <dl class="discussionCount"><dt>{$xenOptions.titleThreadsLast24Hours}:</dt>
+    <dd>{xen:number $totalThreadsLastDay}</dd></dl>
+    </xen:if> 
+
+    <xen:if is="{$xenOptions.showPostsLast24Hours}">    	
+    <dl class="discussionCount"><dt>{$xenOptions.titlePostsLast24Hours}:</dt>
+    <dd>{xen:number $totalPostsLastDay}</dd></dl> 
+    </xen:if>
+    
+    <xen:if is="{$xenOptions.showMembersLast30Days}">
+    <dl class="discussionCount"><dt>{$xenOptions.titleMembersLast30Days}:</dt>
+    <dd>{xen:number $totalActiveMembers}</dd></dl>
+    </xen:if>
+    
+    <xen:if is="{$xenOptions.showLatestMember}">
+    <dl><dt>{$xenOptions.titleLatestMember}:</dt>
+    <dd><xen:username user="$boardTotals.latestUser" rich="true" /></dd></dl>
+    </xen:if>
+               
+</div>
+</div>
+</div>
+
+</xen:if>]]></template>
+  </templates>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

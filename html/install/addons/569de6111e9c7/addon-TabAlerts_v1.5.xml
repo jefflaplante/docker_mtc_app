@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="TabAlerts" title="Tab Alerts" version_string="1.5" version_id="1" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners/>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases/>
+  <route_prefixes>
+    <route_type type="public">
+      <prefix original_prefix="tabalerts" class="Andy_TabAlerts_Route_Prefix_TabAlerts" build_link="none"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="andy_tabalerts_js" version_id="1" version_string="1.4"><![CDATA[<script type="text/javascript">
+// JavaScript function
+(function()
+{
+	var TabTitle = {};
+
+	var updateTitle = function(text)
+	{
+		// get tabText
+		var tabText = document.title;
+
+		// remove alert
+		if (tabText[0] === '(')
+		{
+			tabText = tabText.slice(tabText.indexOf(' '));
+		}
+
+		// add tabText
+		if ((text + '').length > 0)
+		{
+			document.title = '(' + text + ') ' + tabText;
+		} 
+		else
+		{
+			document.title = tabText;
+		}
+	};
+
+	// called from jQuery function
+	TabTitle.setTitle = function(text)
+	{
+		if (!text)
+		{
+			text = '';
+		}
+
+		updateTitle(text);
+	};
+
+	window.TabTitle = TabTitle;
+
+})();
+
+// jQuery function 
+!function($, window, document, _undefined)
+{
+	var TabAlerts = {};
+	
+	TabAlerts.PollConnection = function()
+	{
+		// poll server every 15 seconds
+		TabAlerts.PollFrequency = 15000;
+
+		$(document).bind('XFAjaxSuccess', TabAlerts.AjaxSuccess);
+
+		TabAlerts.AjaxSuccess();
+		setInterval(TabAlerts.PollServer, TabAlerts.PollFrequency);
+	}
+
+	TabAlerts.PollServer = function()
+	{
+		if (!TabAlerts.xhr && new Date().getTime() - TabAlerts.lastAjaxTime > TabAlerts.PollFrequency)
+    	{
+			var ajaxStart = $(document).data('events').ajaxStart[0].handler;
+			
+			$(document).unbind('ajaxStart', ajaxStart);
+			
+			TabAlerts.xhr = XenForo.ajax('index.php?tabalerts', {}, function(){}, {
+				error: function(xhr, responseText, errorThrown)
+				{
+					delete(TabAlerts.xhr);
+					switch (responseText)
+					{
+						case 'timeout':
+						{
+							console.warn(XenForo.phrases.server_did_not_respond_in_time_try_again);
+							break;
+						}
+						case 'parsererror':
+						{
+							console.error('PHP ' + xhr.responseText);
+							break;
+						}
+					}
+					return false;
+				},
+				timeout: TabAlerts.PollFrequency
+			});
+			
+			$(document).bind('ajaxStart', ajaxStart);
+    	}
+	}
+
+	TabAlerts.AjaxSuccess = function(ajaxData)
+	{
+		// get alertCount		
+		var alertCount = parseInt($('#ConversationsMenu_Counter').text()) + parseInt($('#AlertsMenu_Counter').text());
+
+		// call JavaScript function
+		TabTitle.setTitle(alertCount);
+
+  		TabAlerts.lastAjaxTime = new Date().getTime();
+
+  		delete(TabAlerts.xhr);
+	}
+
+	$(document).ready(TabAlerts.PollConnection);
+}
+(jQuery, this, document);
+</script>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="PAGE_CONTAINER" modification_key="TabAlerts_PAGE_CONTAINER" description="TabAlerts_PAGE_CONTAINER" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:include template="page_container_js_head" />]]></find>
+      <replace><![CDATA[$0
+<xen:if is="{$visitor.user_id}">
+<xen:include template="andy_tabalerts_js" />
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

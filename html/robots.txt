@@ -1,0 +1,13 @@
+User-agent: *
+Disallow:
+Disallow: /install/
+Disallow: /data/
+Disallow: /internal_data/
+Disallow: /upload/
+Disallow: /styles/
+Disallow: /js/
+Disallow: /library/
+Disallow: /members/
+Disallow: /account/
+Disallow: /search/
+Sitemap: http://www.mturkcrowd.com/sitemap.php

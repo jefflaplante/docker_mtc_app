@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdTagMe" title="[bd] Tag Me" version_string="3.2.0" version_id="3020000" url="" install_callback_class="bdTagMe_Installer" install_callback_method="install" uninstall_callback_class="bdTagMe_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="bdtagme_user_group_edit"><![CDATA[<xen:checkboxunit label="" explain="{xen:phrase bdtagme_user_group_is_taggable_explain}">
+	<xen:option name="bdTagMe_isTaggable" selected="{$bdTagMe_isTaggable}">
+		{xen:phrase bdtagme_user_group_is_taggable}
+		{xen:if '{$bdTagMe_isTaggable} AND {$bdTagMe_usersCount} > 0', ' ({xen:phrase bdtagme_members_count}: {xen:number $bdTagMe_usersCount})'}
+	</xen:option>
+</xen:checkboxunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="option_template_registrationDefaults" modification_key="bdtagme_option_template_registrationDefaults" description="" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[</xen:checkbox>]]></find>
+      <replace><![CDATA[<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][bdtagme_email]" selected="{$value.bdtagme_email}">{xen:phrase bdtagme_receive_email_when_tagged}</xen:option>
+
+$0]]></replace>
+    </modification>
+    <modification template="user_group_edit" modification_key="bdtagme_user_group_edit" description="" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<fieldset id="piGroups">]]></find>
+      <replace><![CDATA[<xen:include template="bdtagme_user_group_edit" />
+
+$0]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="bdTagMe_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="bdTagMe_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class_bb_code" execute_order="10" callback_class="bdTagMe_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="bdTagMe_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="bdTagMe_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="bdTagMe_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_route_prefix" execute_order="10" callback_class="bdTagMe_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="bdTagMe_Listener" callback_method="template_create" active="1" hint="" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="bdTagMe_Listener" callback_method="template_hook" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates>
+    <template title="bdtagme_tagged">
+      <subject><![CDATA[{xen:phrase bdtagme_email_tagged_subject, 
+	"username={$sender.username}",
+	"board_title={$xenOptions.boardTitle}"
+}]]></subject>
+      <body_text><![CDATA[{xen:phrase bdtagme_email_tagged_text, 
+	"receiver_username={$receiver.username}",
+	"username={$sender.username}",
+	"view_link={$viewLink}",
+	"prefs_link={xen:link 'canonical:account/contact-details'}",
+	"board_link={xen:link 'canonical:index'}",
+	"board_title={$xenOptions.boardTitle}"
+}]]></body_text>
+      <body_html><![CDATA[<p style="margin-top: 0">{xen:phrase bdtagme_email_tagged_html_1,
+	"receiver_username={$receiver.username}",
+	'username=<a href="{xen:link canonical:members, $sender}" style="color: #176093; text-decoration: none">{$sender.username}</a>',
+	'board_title=<a href="{xen:link canonical:index}" style="color: #176093; text-decoration: none">{$xenOptions.boardTitle}</a>'}</p>
+
+<h2 style="font-size: 18pt; font-weight: normal; margin: 10px 0"><a href="{$viewLink}" style="color: #141414; text-decoration: none">{xen:phrase bdtagme_email_tagged_html_2}<br />
+	<span style="color: #176093; font-size: 10px">{$viewLink}</span></a></h2>
+
+<p style="font-size: 11px; color: #969696">{xen:phrase bdtagme_email_tagged_html_footer_1,
+	'board_title=<a href="{xen:link canonical:index}" style="color: #969696">{$xenOptions.boardTitle}</a>'}</p>
+
+<p style="font-size: 11px; color: #969696">{xen:phrase bdtagme_email_tagged_html_footer_2,
+	'prefs_link={xen:link canonical:account/contact-details}',
+	'link_style=color: #969696'}</p>]]></body_html>
+    </template>
+  </email_templates>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="bdtagme" display_order="9999" debug_only="0"/>
+    <option option_id="bdtagme_alertEmail" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdtagme" display_order="20"/>
+    </option>
+    <option option_id="bdtagme_reorder" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdtagme" display_order="1000"/>
+    </option>
+    <option option_id="bdtagme_userGroupGravatar" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>bdtagme.usergroup@xfrocks.com</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdtagme" display_order="20000"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="general" permission_id="bdtagme_groupTag" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="9999"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="bdtagme_email_tagged_html_1" version_id="40" version_string="1.6.6"><![CDATA[{receiver_username}, {username} tagged you at {board_title}.]]></phrase>
+    <phrase title="bdtagme_email_tagged_html_2" version_id="40" version_string="1.6.6"><![CDATA[To view the tagged content, click here]]></phrase>
+    <phrase title="bdtagme_email_tagged_html_footer_1" version_id="40" version_string="1.6.6"><![CDATA[This message was sent to you from {board_title} because your preferences are set to receive email when somebody tags you.]]></phrase>
+    <phrase title="bdtagme_email_tagged_html_footer_2" version_id="40" version_string="1.6.6"><![CDATA[To stop receiving email, please <a href="{prefs_link}" style="{link_style}">edit your account preferences</a>.]]></phrase>
+    <phrase title="bdtagme_email_tagged_subject" version_id="40" version_string="1.6.6"><![CDATA[{username} tagged you at {board_title}]]></phrase>
+    <phrase title="bdtagme_email_tagged_text" version_id="40" version_string="1.6.6"><![CDATA[{receiver_username}, {username} tagged you at {board_title}.
+
+To view the tagged content, click here:
+{view_link}
+
+----------------------------------------------------------------------
+
+This message was sent to you from {board_title} because your preferences are set to receive email when somebody tags you.
+
+To stop receiving email, please edit your account preferences:
+{prefs_link}
+
+{board_link}]]></phrase>
+    <phrase title="bdtagme_members_count" version_id="27" version_string="1.6-dev"><![CDATA[Members Count]]></phrase>
+    <phrase title="bdtagme_receive_email_when_tagged" version_id="41" version_string="1.7"><![CDATA[Receive email when name is mentioned]]></phrase>
+    <phrase title="bdtagme_receive_email_when_tagged_explain" version_id="40" version_string="1.6.6"><![CDATA[Email notifications for mentions from threads, replies, profile posts, etc.]]></phrase>
+    <phrase title="bdtagme_user_group_is_taggable" version_id="25" version_string="1.5.9"><![CDATA[Is taggable]]></phrase>
+    <phrase title="bdtagme_user_group_is_taggable_explain" version_id="27" version_string="1.6-dev"><![CDATA[Check this box to allow people to tag this user group's members using @usergroup syntax. Please note that allowing a group to be taggable will make the group member list available for all to see. It's also not recommended to enable this option for groups that have a lot of members.]]></phrase>
+    <phrase title="option_bdtagme_alertEmail" version_id="40" version_string="1.6.6"><![CDATA[Send Alert Emails]]></phrase>
+    <phrase title="option_bdtagme_alertEmail_explain" version_id="2056" version_string="2.1.0b"><![CDATA[Enable this option to send alert emails in addition to builtin notification system. Users still need to enable the option in /account/contact-details to start receiving emails.]]></phrase>
+    <phrase title="option_bdtagme_reorder" version_id="3059" version_string="3.0.2"><![CDATA[Re-order Suggestion]]></phrase>
+    <phrase title="option_bdtagme_reorder_explain" version_id="3059" version_string="3.0.2"><![CDATA[Enable this option to re-order suggestion using member message count and last activity.]]></phrase>
+    <phrase title="option_bdtagme_userGroupGravatar" version_id="25" version_string="1.5.9"><![CDATA[User Group Gravatar]]></phrase>
+    <phrase title="option_bdtagme_userGroupGravatar_explain" version_id="25" version_string="1.5.9"><![CDATA[User groups will show up in suggestion list with a small image. You can use any image you want by uploading to <a href="http://gravatar.com/" tabindex="-1">Gravatar</a> and enter the email address here.]]></phrase>
+    <phrase title="option_group_bdtagme" version_id="8" version_string="1.2.3"><![CDATA[[bd] Tag Me]]></phrase>
+    <phrase title="option_group_bdtagme_description" version_id="8" version_string="1.2.3"><![CDATA[]]></phrase>
+    <phrase title="permission_general_bdtagme_groupTag" version_id="40" version_string="1.6.6"><![CDATA[[Tag Me] Tag group]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="bdtagme.css" version_id="27" version_string="1.6-dev"><![CDATA[.xenOverlay .bdTagMe_TaggedUserGroupMemberList { max-height: 300px; overflow-y: scroll; }]]></template>
+    <template title="bdtagme_account_contact_details_messaging" version_id="52" version_string="1.7.5b"><![CDATA[<xen:if is="{$xenOptions.bdtagme_alertEmail}">
+	<li><label for="ctrl_bdtagme_email"><input type="checkbox" name="bdtagme_email" value="1" id="ctrl_bdtagme_email" {xen:checked '{$visitor.bdtagme_email}'} />
+		{xen:phrase bdtagme_receive_email_when_tagged}</label>
+		<p class="hint">{xen:phrase bdtagme_receive_email_when_tagged_explain}</p>
+	</li>
+</xen:if>]]></template>
+    <template title="bdtagme_members_tagged_user_group" version_id="27" version_string="1.6-dev"><![CDATA[<xen:title>{$userGroup.title}</xen:title>
+
+<xen:require css="member_list.css" />
+<xen:require css="xenforo_member_list_item.css" />
+<xen:require css="bdtagme.css" />
+	
+<div class="section">
+	<ol class="memberList bdTagMe_TaggedUserGroupMemberList">
+		<xen:foreach loop="$users" value="$user">
+			<xen:include template="member_list_item">
+				<xen:set var="$noOverlay">1</xen:set>
+			</xen:include>
+		</xen:foreach>
+	</ol>
+</div>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="editor" modification_key="bdtagme_editor" description="Use our action for auto complete data source (to support user group tagging)" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[{xen:if $editorOptions.json, 'data-options="{xen:escape {xen:helper json, $editorOptions.json}}"'}]]></find>
+      <replace><![CDATA[$0 data-ac-url="{xen:link members/bdtagme-find}"]]></replace>
+    </modification>
+    <modification template="member_view" modification_key="bdtagme_member_view" description="Use our action for auto complete data source (to support user group tagging)" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#class="[^"]*UserTagger[^"]*"#]]></find>
+      <replace><![CDATA[$0 data-acurl="{xen:link members/bdtagme-find}"]]></replace>
+    </modification>
+    <modification template="navigation_visitor_tab" modification_key="bdtagme_navigation_visitor_tab" description="Use our action for auto complete data source (to support user group tagging)" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#class="[^"]*UserTagger[^"]*"#]]></find>
+      <replace><![CDATA[$0 data-acurl="{xen:link members/bdtagme-find}"]]></replace>
+    </modification>
+    <modification template="profile_post" modification_key="bdtagme_profile_post" description="Use our action for auto complete data source (to support user group tagging)" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#class="[^"]*UserTagger[^"]*"#]]></find>
+      <replace><![CDATA[$0 data-acurl="{xen:link members/bdtagme-find}"]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="SmilieCount" title="Smilie Count" version_string="1.3" version_id="1" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_datawriter" execute_order="11" callback_class="Andy_SmilieCount_Listener" callback_method="loadClassDatawriter" active="1" hint="XenForo_DataWriter_DiscussionMessage_Post" description="Smilie Count load_class_datawriter"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="SmilieCount" display_order="4000" debug_only="0"/>
+    <option option_id="maxSmilieCount" edit_format="spinbox" data_type="integer" can_backup="1">
+      <default_value>5</default_value>
+      <edit_format_params>min=1</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="SmilieCount" display_order="1"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="option_group_SmilieCount" version_id="1" version_string="1.2"><![CDATA[Smilie Count]]></phrase>
+    <phrase title="option_group_SmilieCount_description" version_id="1" version_string="1.2"><![CDATA[Options here control the Smilie Count add-on.]]></phrase>
+    <phrase title="option_maxSmilieCount" version_id="1" version_string="1.2"><![CDATA[Maximum Smilies Per Message]]></phrase>
+    <phrase title="option_maxSmilieCount_explain" version_id="1" version_string="1.2"></phrase>
+    <phrase title="smiliecount_please_reduce_the_number_of_smilies_maximum_allowed_is" version_id="1" version_string="1.2"><![CDATA[Please reduce the number of smilies, maximum allowed is:]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+</addon>

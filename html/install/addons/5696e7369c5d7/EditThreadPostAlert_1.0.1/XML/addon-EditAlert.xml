@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="EditAlert" title="Brivium - Edit Thread Post Alert" version_string="1.0.1" version_id="1000100" url="http://brivium.com" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="Borbole_EditAlert_Listener_Listener" callback_method="controller" active="1" description="Edit Alert"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="Borbole_EditAlert_Listener_Listener" callback_method="model" active="1" description="Edit Alert"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <optiongroups>
+    <option option_id="edit_post_alert" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="discussionOptions" display_order="490"/>
+    </option>
+    <option option_id="thread_edit_alert" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="discussionOptions" display_order="480"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="borbole_posters_edit_alert_notice" version_id="1" version_string="1.0"><![CDATA[{name} edited a post you made in thread {title}]]></phrase>
+    <phrase title="borbole_thread_starter_edit_alert_notice" version_id="1" version_string="1.0"><![CDATA[{name} edited your thread {title}]]></phrase>
+    <phrase title="option_edit_post_alert" version_id="1" version_string="1.0"><![CDATA[Edit Posts Alert!]]></phrase>
+    <phrase title="option_edit_post_alert_explain" version_id="1" version_string="1.0"><![CDATA[Do you you want to send an alert to thread starters whenever someone edits their  post/s?]]></phrase>
+    <phrase title="option_thread_edit_alert" version_id="1" version_string="1.0"><![CDATA[Edit Threads Alert!]]></phrase>
+    <phrase title="option_thread_edit_alert_explain" version_id="1" version_string="1.0"><![CDATA[Do you you want to send an alert to thread starters whenever someone edits their post/s?]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="alert_post_posts_edit" version_id="1" version_string="1.0"><![CDATA[{xen:phrase borbole_posters_edit_alert_notice,
+'name={xen:helper username, $user, 'subject'}',
+'title=<a href="{xen:link posts, $content}" class="PopupItemLink">{xen:helper threadPrefix, $content}{$content.title}</a>'}
+]]></template>
+    <template title="alert_post_thread_starter" version_id="1" version_string="1.0"><![CDATA[{xen:phrase borbole_thread_starter_edit_alert_notice,
+'name={xen:helper username, $user, 'subject'}',
+'title=<a href="{xen:link posts, $content}" class="PopupItemLink">{xen:helper threadPrefix, $content}{$content.title}</a>'}
+]]></template>
+  </templates>
+  <bb_code_media_sites/>
+</addon>

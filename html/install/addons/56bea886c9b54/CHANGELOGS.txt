@@ -1,0 +1,26 @@
+2.1.0 (21-09-2014)
+	2.1.0/a Added support for Conversation (still push without alert)
+	2.1.0/b Improved Pushbullet push for iPhone app display
+	2.1.0/c Improved first time setup experience for Pushbullet with welcome message
+
+2.0.0 (20-09-2014)
+	2.0.0/a Added support for Pushbullet
+	2.0.0/b Added new option for admin to turn on/off content types for all users
+
+1.0.3 (03-04-2014)
+	1.0.3/a Added support for sound
+	1.0.3/b Added support for priority
+	1.0.3/c Added queue dismissal when alert is marked as read
+	1.0.3/d Improved user key security
+	1.0.3/e Improved installer
+
+1.0.2 (02-04-2014)
+	1.0.2/a Fixed bug for alert by guest
+
+1.0.1 (01-04-2014)
+	1.0.1/a Added welcome message after association
+	1.0.1/b Added title for alert messages
+	1.0.1/c Added mark as read for link
+
+1.0.0 (01-04-2014)
+	First public release

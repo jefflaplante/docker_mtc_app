@@ -1,0 +1,949 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="Brivium_MetadataEssential" title="Brivium - Metadata Essential" version_string="1.8.3" version_id="1080300" url="http://brivium.com/" install_callback_class="Brivium_MetadataEssential_Installer" install_callback_method="install" uninstall_callback_class="Brivium_MetadataEssential_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="BRME_forum_edit_basic_information"><![CDATA[<xen:if is="{$xenOptions.BRME_forumMetadata.title}=='user' && {$xenOptions.BRME_forumMetadata.enabled_title}">
+<xen:textboxunit name="brme_meta_title" value="{$forum.metaData.title}" 
+	label="{xen:phrase BRME_meta_title}:" class="OptOut" >
+	<xen:explain>{xen:phrase BRME_meta_title_hint}</xen:explain>
+</xen:textboxunit>
+</xen:if>
+<xen:if is="{$xenOptions.BRME_forumMetadata.description}=='user' && {$xenOptions.BRME_forumMetadata.enabled_description}">
+<xen:textboxunit name="brme_meta_description" value="{$forum.metaData.description}" 
+	label="{xen:phrase BRME_meta_description}:" class="OptOut" >
+	<xen:explain>{xen:phrase BRME_meta_description_hint}</xen:explain>
+</xen:textboxunit>
+</xen:if>
+<xen:if is="{$xenOptions.BRME_forumMetadata.keywords}=='user' && {$xenOptions.BRME_forumMetadata.enabled_keywords}">
+<xen:textboxunit name="brme_meta_keywords" value="{$forum.metaData.keywords}" 
+	label="{xen:phrase BRME_meta_keywords}:" class="OptOut" >
+	<xen:explain>{xen:phrase BRME_enter_keywords_meta_separated_by_comma}</xen:explain>
+</xen:textboxunit>
+</xen:if>
+<xen:radiounit label="{xen:phrase BRME_meta_robot_index}" name="brme_index" value="{$forum.metaData.index}">	
+	<xen:option value="0" label="{xen:phrase BRME_no_set}" >
+		<xen:hint>{xen:phrase BRME_using_option_robots_metadata_value}</xen:hint>
+	</xen:option>
+	<xen:option value="1" label="{xen:phrase BRME_index}" />
+	<xen:option value="2" label="{xen:phrase BRME_noindex}" />
+</xen:radiounit>
+<xen:radiounit label="{xen:phrase BRME_meta_robot_follow}" name="brme_follow" value="{$forum.metaData.follow}">	
+	<xen:option value="0" label="{xen:phrase BRME_no_set}" >
+		<xen:hint>{xen:phrase BRME_using_option_robots_metadata_value}</xen:hint>
+	</xen:option>
+	<xen:option value="1" label="{xen:phrase BRME_follow}" />
+	<xen:option value="2" label="{xen:phrase BRME_nofollow}" />
+</xen:radiounit>
+<xen:checkboxunit label="">
+	<xen:option name="brme_use_child" selected="{$forum.metaData.use_child} || !{$forum.metaData}" hint="{xen:phrase BRME_if_selected_threads_from_this_forum_will_use_this_meta_option}">{xen:phrase BRME_use_this_meta_for_threads}</xen:option>
+</xen:checkboxunit>]]></template>
+    <template title="BRME_option_template_copyrightMetaData"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}:" hint="{xen:raw $preparedOption.explain}">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_copyright]" value="1" selected="{$preparedOption.option_value.enabled_copyright}">
+		<xen:label>{xen:phrase BRME_enabled_copyright}:</xen:label>
+		<xen:hint>{xen:phrase BRME_enabled_copyright_explain}</xen:hint>
+		<xen:disabled>
+			<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][copyright]"
+				value="{$preparedOption.option_value.copyright}" />
+		</xen:disabled>
+	</xen:option>
+	<xen:html>
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+</xen:checkboxunit>]]></template>
+    <template title="BRME_option_template_forumMetaData"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}:" hint="{xen:raw $preparedOption.explain}">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_title]" label="{xen:phrase BRME_enabled_title}" value="1"
+		selected="{$preparedOption.option_value.enabled_title}">
+		<xen:hint>{xen:phrase BRME_enabled_title_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][title]" value="{$preparedOption.option_value.title}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][titleFixed]"
+					value="{$preparedOption.option_value.titleFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_description]" label="{xen:phrase BRME_enabled_description}" value="1"
+		selected="{$preparedOption.option_value.enabled_description}">
+		<xen:hint>{xen:phrase BRME_enabled_description_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][description]" value="{$preparedOption.option_value.description}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][descriptionFixed]"
+					value="{$preparedOption.option_value.descriptionFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_keywords]" label="{xen:phrase BRME_enabled_keywords}" value="1"
+		selected="{$preparedOption.option_value.enabled_keywords}">
+		<xen:hint>{xen:phrase BRME_enabled_keywords_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][keywords]" value="{$preparedOption.option_value.keywords}">
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][keywordsFixed]"
+					value="{$preparedOption.option_value.keywordsFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_author]" value="1" selected="{$preparedOption.option_value.enabled_author}">
+		<xen:label>{xen:phrase BRME_enabled_author}:</xen:label>
+		<xen:hint>{xen:phrase BRME_enabled_author_explain}</xen:hint>
+		<xen:disabled>
+			<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][authorFixed]"
+					value="{$preparedOption.option_value.authorFixed}" />
+		</xen:disabled>
+	</xen:option>
+	<xen:html>
+		<input type="hidden" value="fixed" name="{$fieldPrefix}[{$preparedOption.option_id}][author]" />
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+	
+</xen:checkboxunit>]]></template>
+    <template title="BRME_option_template_resourceCategoryMetaData"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}:" hint="{xen:raw $preparedOption.explain}">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_title]" label="{xen:phrase BRME_enabled_title}" value="1"
+		selected="{$preparedOption.option_value.enabled_title}">
+		<xen:hint>{xen:phrase BRME_enabled_title_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][title]" value="{$preparedOption.option_value.title}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][titleFixed]"
+					value="{$preparedOption.option_value.titleFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_description]" label="{xen:phrase BRME_enabled_description}" value="1"
+		selected="{$preparedOption.option_value.enabled_description}">
+		<xen:hint>{xen:phrase BRME_enabled_description_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][description]" value="{$preparedOption.option_value.description}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][descriptionFixed]"
+					value="{$preparedOption.option_value.descriptionFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_keywords]" label="{xen:phrase BRME_enabled_keywords}" value="1"
+		selected="{$preparedOption.option_value.enabled_keywords}">
+		<xen:hint>{xen:phrase BRME_enabled_keywords_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][keywords]" value="{$preparedOption.option_value.keywords}">
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][keywordsFixed]"
+					value="{$preparedOption.option_value.keywordsFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_author]" value="1" selected="{$preparedOption.option_value.enabled_author}">
+		<xen:label>{xen:phrase BRME_enabled_author}:</xen:label>
+		<xen:hint>{xen:phrase BRME_enabled_author_explain}</xen:hint>
+		<xen:disabled>
+			<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][authorFixed]"
+					value="{$preparedOption.option_value.authorFixed}" />
+		</xen:disabled>
+	</xen:option>
+	<xen:html>
+		<input type="hidden" value="fixed" name="{$fieldPrefix}[{$preparedOption.option_id}][author]" />
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+	
+</xen:checkboxunit>]]></template>
+    <template title="BRME_option_template_resourceMetaData"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}:" hint="{xen:raw $preparedOption.explain}">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_title]" label="{xen:phrase BRME_enabled_title}" value="1"
+		selected="{$preparedOption.option_value.enabled_title}">
+		<xen:hint>{xen:phrase BRME_enabled_title_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][title]" value="{$preparedOption.option_value.title}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][titleFixed]"
+					value="{$preparedOption.option_value.titleFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_description]" label="{xen:phrase BRME_enabled_description}" value="1"
+		selected="{$preparedOption.option_value.enabled_description}">
+		<xen:hint>{xen:phrase BRME_enabled_description_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][description]" value="{$preparedOption.option_value.description}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][descriptionFixed]"
+					value="{$preparedOption.option_value.descriptionFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_keywords]" label="{xen:phrase BRME_enabled_keywords}" value="1"
+		selected="{$preparedOption.option_value.enabled_keywords}">
+		<xen:hint>{xen:phrase BRME_enabled_keywords_explain}</xen:hint>
+		<xen:disabled>
+		<ul>
+			<li><label for="ctrl_optionsBRME_resourceMetadatakeywords_user">
+				<input type="radio" name="{$fieldPrefix}[{$preparedOption.option_id}][keywords]" {xen:checked '{$preparedOption.option_value.keywords}=="user"'} value="user" id="ctrl_optionsBRME_resourceMetadatakeywords_user"> {xen:phrase BRME_by_user_insert}</label> <p class="hint">{xen:phrase BRME_by_user_insert_explain}</p></li>
+			<li><label for="ctrl_optionsBRME_resourceMetadatakeywords_fixed">
+				<input type="radio" name="{$fieldPrefix}[{$preparedOption.option_id}][keywords]" {xen:checked '{$preparedOption.option_value.keywords}=="fixed"'} value="fixed" class="Disabler" id="ctrl_optionsBRME_resourceMetadatakeywords_fixed"> Fixed value:</label> <p class="hint">{xen:phrase BRME_fixed_explain}</p>
+				<ul id="ctrl_optionsBRME_resourceMetadatakeywords_fixed_Disabler" class="disablerList">
+					<li><xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][keywordsFixed]"
+					value="{$preparedOption.option_value.keywordsFixed}" /></li>
+				</ul>
+			</li>
+			<xen:if is="{$xenTagAddon}">
+			<li><label for="ctrl_optionsBRME_resourceMetadatakeywords_xen_tag">
+				<input type="radio" name="{$fieldPrefix}[{$preparedOption.option_id}][keywords]"  {xen:checked '{$preparedOption.option_value.keywords}=="xen_tag"'} value="xen_tag" id="ctrl_optionsBRME_resourceMetadatakeywords_xen_tag"> {xen:phrase BRME_using_xen_tag}</label> <p class="hint">{xen:phrase BRME_by_xen_tag_explain}</p></li>
+			</xen:if>
+		</ul>
+		</xen:disabled>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_author]" label="{xen:phrase BRME_enabled_author}" value="1"
+		selected="{$preparedOption.option_value.enabled_author}">
+		<xen:hint>{xen:phrase BRME_enabled_author_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][author]" value="{$preparedOption.option_value.author}">	
+			<xen:option value="owner" label="{xen:phrase BRME_by_content_owner}" >
+				<xen:hint>{xen:phrase BRME_by_content_owner_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][authorFixed]"
+					value="{$preparedOption.option_value.authorFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+
+	<xen:html>
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+</xen:checkboxunit>]]></template>
+    <template title="BRME_option_template_robotsMetaData"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}:" hint="{xen:raw $preparedOption.explain}">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_robots]" value="1" selected="{$preparedOption.option_value.enabled_robots}">
+		<xen:label>{xen:phrase BRME_enabled_robots}:</xen:label>
+		<xen:hint>{xen:phrase BRME_enabled_robots_explain}</xen:hint>
+		<xen:disabled>
+			<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][robots]"
+				value="{$preparedOption.option_value.robots}" />
+		</xen:disabled>
+	</xen:option>
+	<xen:html>
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+</xen:checkboxunit>]]></template>
+    <template title="BRME_option_template_threadMetaData"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}:" hint="{xen:raw $preparedOption.explain}">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_title]" label="{xen:phrase BRME_enabled_title}" value="1"
+		selected="{$preparedOption.option_value.enabled_title}">
+		<xen:hint>{xen:phrase BRME_enabled_title_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][title]" value="{$preparedOption.option_value.title}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][titleFixed]"
+					value="{$preparedOption.option_value.titleFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_description]" label="{xen:phrase BRME_enabled_description}" value="1"
+		selected="{$preparedOption.option_value.enabled_description}">
+		<xen:hint>{xen:phrase BRME_enabled_description_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][description]" value="{$preparedOption.option_value.description}">	
+			<xen:option value="user" label="{xen:phrase BRME_by_user_insert}" >
+				<xen:hint>{xen:phrase BRME_by_user_insert_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="content" label="{xen:phrase BRME_by_content}" >
+				<xen:hint>{xen:phrase BRME_by_content_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][descriptionFixed]"
+					value="{$preparedOption.option_value.descriptionFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_keywords]" label="{xen:phrase BRME_enabled_keywords}" value="1"
+		selected="{$preparedOption.option_value.enabled_keywords}">
+		<xen:hint>{xen:phrase BRME_enabled_keywords_explain}</xen:hint>
+		<xen:disabled>
+		<ul>
+			<li><label for="ctrl_optionsBRME_threadMetadatakeywords_user">
+				<input type="radio" name="options[BRME_threadMetadata][keywords]" {xen:checked '{$preparedOption.option_value.keywords}=="user"'} value="user" id="ctrl_optionsBRME_threadMetadatakeywords_user"> {xen:phrase BRME_by_user_insert}</label> <p class="hint">{xen:phrase BRME_by_user_insert_explain}</p></li>
+			<li><label for="ctrl_optionsBRME_threadMetadatakeywords_fixed">
+				<input type="radio" name="options[BRME_threadMetadata][keywords]" {xen:checked '{$preparedOption.option_value.keywords}=="fixed"'} value="fixed" class="Disabler" id="ctrl_optionsBRME_threadMetadatakeywords_fixed"> Fixed value:</label> <p class="hint">{xen:phrase BRME_fixed_explain}</p>
+				<ul id="ctrl_optionsBRME_threadMetadatakeywords_fixed_Disabler" class="disablerList">
+					<li><xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][keywordsFixed]"
+					value="{$preparedOption.option_value.keywordsFixed}" /></li>
+				</ul>
+			</li>
+			<xen:if is="{$xenTagAddon}">
+			<li><label for="ctrl_optionsBRME_threadMetadatakeywords_xen_tag">
+				<input type="radio" name="options[BRME_threadMetadata][keywords]"  {xen:checked '{$preparedOption.option_value.keywords}=="xen_tag"'} value="xen_tag" id="ctrl_optionsBRME_threadMetadatakeywords_xen_tag"> {xen:phrase BRME_using_xen_tag}</label> <p class="hint">{xen:phrase BRME_by_xen_tag_explain}</p></li>
+			</xen:if>
+		</ul>
+		</xen:disabled>
+	</xen:option>
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][enabled_author]" label="{xen:phrase BRME_enabled_author}" value="1"
+		selected="{$preparedOption.option_value.enabled_author}">
+		<xen:hint>{xen:phrase BRME_enabled_author_explain}</xen:hint>
+		<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][author]" value="{$preparedOption.option_value.author}">	
+			<xen:option value="owner" label="{xen:phrase BRME_by_content_owner}" >
+				<xen:hint>{xen:phrase BRME_by_content_owner_explain}</xen:hint>
+			</xen:option>
+			<xen:option value="fixed" label="{xen:phrase BRME_fixed}:">
+				<xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][authorFixed]"
+					value="{$preparedOption.option_value.authorFixed}" />
+				<xen:hint>{xen:phrase BRME_fixed_explain}</xen:hint>
+			</xen:option>
+		</xen:radio>
+	</xen:option>
+
+	<xen:html>
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+</xen:checkboxunit>]]></template>
+    <template title="BRME_resource_category_edit"><![CDATA[<xen:if is="{$xenOptions.BRME_resourceCategory.title}=='user' && {$xenOptions.BRME_resourceCategory.enabled_title}">
+<xen:textboxunit name="brme_meta_title" value="{$category.metaData.title}" 
+	label="{xen:phrase BRME_meta_title}:" class="OptOut" >
+	<xen:explain>{xen:phrase BRME_meta_title_hint}</xen:explain>
+</xen:textboxunit>
+</xen:if>
+<xen:if is="{$xenOptions.BRME_resourceCategory.description}=='user' && {$xenOptions.BRME_resourceCategory.enabled_description}">
+<xen:textboxunit name="brme_meta_description" value="{$category.metaData.description}" 
+	label="{xen:phrase BRME_meta_description}:" class="OptOut" >
+	<xen:explain>{xen:phrase BRME_meta_description_hint}</xen:explain>
+</xen:textboxunit>
+</xen:if>
+<xen:if is="{$xenOptions.BRME_resourceCategory.keywords}=='user' && {$xenOptions.BRME_resourceCategory.enabled_keywords}">
+<xen:textboxunit name="brme_meta_keywords" value="{$category.metaData.keywords}" 
+	label="{xen:phrase BRME_meta_keywords}:" class="OptOut" >
+	<xen:explain>{xen:phrase BRME_enter_keywords_meta_separated_by_comma}</xen:explain>
+</xen:textboxunit>
+</xen:if>
+<xen:radiounit label="{xen:phrase BRME_meta_robot_index}" name="brme_index" value="{$category.metaData.index}">	
+	<xen:option value="0" label="{xen:phrase BRME_no_set}" >
+		<xen:hint>{xen:phrase BRME_using_option_robots_metadata_value}</xen:hint>
+	</xen:option>
+	<xen:option value="1" label="{xen:phrase BRME_index}" />
+	<xen:option value="2" label="{xen:phrase BRME_noindex}" />
+</xen:radiounit>
+<xen:radiounit label="{xen:phrase BRME_meta_robot_follow}" name="brme_follow" value="{$category.metaData.follow}">	
+	<xen:option value="0" label="{xen:phrase BRME_no_set}" >
+		<xen:hint>{xen:phrase BRME_using_option_robots_metadata_value}</xen:hint>
+	</xen:option>
+	<xen:option value="1" label="{xen:phrase BRME_follow}" />
+	<xen:option value="2" label="{xen:phrase BRME_nofollow}" />
+</xen:radiounit>
+<xen:checkboxunit label="">
+	<xen:option name="brme_use_child" selected="{$category.metaData.use_child} || !{$category.metaData}" hint="{xen:phrase BRME_if_selected_resources_from_this_category_will_use_this_meta_option}">{xen:phrase BRME_use_this_meta_for_resources}</xen:option>
+</xen:checkboxunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="resource_category_edit" modification_key="BRME_resource_category_edit" description="Add metadata option to resource category" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:else />
+		<input type="hidden" name="default_thread_prefix" value="0" />
+	</xen:if>]]></find>
+      <replace><![CDATA[$0<xen:include template="BRME_resource_category_edit" />]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="template_create" execute_order="10" callback_class="Brivium_MetadataEssential_EventListeners_Listener" callback_method="templateCreate" active="1" hint="" description="templateCreate"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="Brivium_MetadataEssential_EventListeners_Listener" callback_method="templateHook" active="1" hint="" description="templateHook"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="BR_MetadataEssential" display_order="1" debug_only="0"/>
+    <option option_id="BRME_copyrightMetadata" edit_format="template" data_type="array" can_backup="1">
+      <default_value>a:2:{s:17:"enabled_copyright";s:1:"1";s:9:"copyright";s:7:"Brivium";}</default_value>
+      <edit_format_params>BRME_option_template_copyrightMetaData</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="500"/>
+    </option>
+    <option option_id="BRME_defaultCategoryDes" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$categoryTitle}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="910"/>
+    </option>
+    <option option_id="BRME_defaultCategoryTitle" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$categoryTitle}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="900"/>
+    </option>
+    <option option_id="BRME_defaultForumDes" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$forumTitle}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="810"/>
+    </option>
+    <option option_id="BRME_defaultForumTitle" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$forumTitle}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="800"/>
+    </option>
+    <option option_id="BRME_defaultImageResource" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="730"/>
+    </option>
+    <option option_id="BRME_defaultPostImageAltTag" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="640"/>
+    </option>
+    <option option_id="BRME_defaultResourceDes" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$title}</default_value>
+      <edit_format_params>rows=2</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="710"/>
+    </option>
+    <option option_id="BRME_defaultResourceKeywords" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$title},  {$categoryTitle}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="720"/>
+    </option>
+    <option option_id="BRME_defaultResourceTitle" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$title}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="700"/>
+    </option>
+    <option option_id="BRME_defaultThreadDes" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$forumTitle} escort, {$title}, escort in {$forumTitle}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="610"/>
+    </option>
+    <option option_id="BRME_defaultThreadKeywords" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$forumTitle}, {$title}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="620"/>
+    </option>
+    <option option_id="BRME_defaultThreadTitle" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>{$title}</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="600"/>
+    </option>
+    <option option_id="BRME_descriptionLength" edit_format="spinbox" data_type="string" can_backup="1">
+      <default_value>155</default_value>
+      <edit_format_params>min=0
+step=1</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="30"/>
+    </option>
+    <option option_id="BRME_forumMetadata" edit_format="template" data_type="array" can_backup="1">
+      <default_value>a:9:{s:13:"enabled_title";s:1:"1";s:5:"title";s:7:"content";s:19:"enabled_description";s:1:"1";s:11:"description";s:4:"user";s:16:"enabled_keywords";s:1:"1";s:8:"keywords";s:4:"user";s:14:"enabled_author";s:1:"1";s:11:"authorFixed";s:7:"Brivium";s:6:"author";s:5:"fixed";}</default_value>
+      <edit_format_params>BRME_option_template_forumMetaData</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="120"/>
+    </option>
+    <option option_id="BRME_keywordLength" edit_format="spinbox" data_type="string" can_backup="1">
+      <default_value>100</default_value>
+      <edit_format_params>min=0
+step=1</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="40"/>
+    </option>
+    <option option_id="BRME_removeBoardTitle" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="10"/>
+    </option>
+    <option option_id="BRME_resourceCategory" edit_format="callback" data_type="array" can_backup="1">
+      <default_value>a:9:{s:13:"enabled_title";s:1:"1";s:5:"title";s:7:"content";s:19:"enabled_description";s:1:"1";s:11:"description";s:4:"user";s:16:"enabled_keywords";s:1:"1";s:8:"keywords";s:4:"user";s:14:"enabled_author";s:1:"1";s:11:"authorFixed";s:7:"Brivium";s:6:"author";s:5:"fixed";}</default_value>
+      <edit_format_params>Brivium_MetadataEssential_Option_Render::renderResourceCategoryOption</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="220"/>
+    </option>
+    <option option_id="BRME_resourceMetadata" edit_format="callback" data_type="array" can_backup="1">
+      <default_value>a:8:{s:13:"enabled_title";s:1:"1";s:5:"title";s:7:"content";s:19:"enabled_description";s:1:"1";s:11:"description";s:4:"user";s:16:"enabled_keywords";s:1:"1";s:8:"keywords";s:4:"user";s:14:"enabled_author";s:1:"1";s:6:"author";s:5:"owner";}</default_value>
+      <edit_format_params>Brivium_MetadataEssential_Option_Render::renderResourceMetadataOption</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="210"/>
+    </option>
+    <option option_id="BRME_robotsMetadata" edit_format="template" data_type="array" can_backup="1">
+      <default_value>a:2:{s:14:"enabled_robots";s:1:"1";s:6:"robots";s:12:"index,follow";}</default_value>
+      <edit_format_params>BRME_option_template_robotsMetaData</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="510"/>
+    </option>
+    <option option_id="BRME_threadMetadata" edit_format="callback" data_type="array" can_backup="1">
+      <default_value>a:8:{s:13:"enabled_title";s:1:"1";s:5:"title";s:7:"content";s:19:"enabled_description";s:1:"1";s:11:"description";s:4:"user";s:16:"enabled_keywords";s:1:"1";s:8:"keywords";s:4:"user";s:14:"enabled_author";s:1:"1";s:6:"author";s:5:"owner";}</default_value>
+      <edit_format_params>Brivium_MetadataEssential_Option_Render::renderThreadMetadataOption</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="110"/>
+    </option>
+    <option option_id="BRME_titleLength" edit_format="spinbox" data_type="string" can_backup="1">
+      <default_value>55</default_value>
+      <edit_format_params>min=0
+step=1</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="BR_MetadataEssential" display_order="20"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="forum" permission_id="BRME_changeDesMeta" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="20"/>
+      <permission permission_group_id="forum" permission_id="BRME_changeKeyword" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="30"/>
+      <permission permission_group_id="forum" permission_id="BRME_changeRobotFollow" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="110"/>
+      <permission permission_group_id="forum" permission_id="BRME_changeRobotIndex" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="100"/>
+      <permission permission_group_id="forum" permission_id="BRME_changeTitleMeta" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="10"/>
+      <permission permission_group_id="resource" permission_id="BRME_changeDesMeta" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="210"/>
+      <permission permission_group_id="resource" permission_id="BRME_changeKeyword" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="220"/>
+      <permission permission_group_id="resource" permission_id="BRME_changeRobotFollow" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="310"/>
+      <permission permission_group_id="resource" permission_id="BRME_changeRobotIndex" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="300"/>
+      <permission permission_group_id="resource" permission_id="BRME_changeTitleMeta" permission_type="flag" default_value="unset" interface_group_id="BR_MetadataEssential" display_order="200"/>
+    </permissions>
+    <interface_groups>
+      <interface_group interface_group_id="BR_MetadataEssential" display_order="1000"/>
+    </interface_groups>
+  </permissions>
+  <phrases>
+    <phrase title="BRME_by_content" version_id="100" version_string="1.0.0"><![CDATA[By content]]></phrase>
+    <phrase title="BRME_by_content_explain" version_id="100" version_string="1.0.0"><![CDATA[Using data by content]]></phrase>
+    <phrase title="BRME_by_content_owner" version_id="100" version_string="1.0.0"><![CDATA[By content owner]]></phrase>
+    <phrase title="BRME_by_content_owner_explain" version_id="100" version_string="1.0.0"><![CDATA[Using owner of this content]]></phrase>
+    <phrase title="BRME_by_user_insert" version_id="100" version_string="1.0.0"><![CDATA[By user insert]]></phrase>
+    <phrase title="BRME_by_user_insert_explain" version_id="100" version_string="1.0.0"><![CDATA[Using data by user insert]]></phrase>
+    <phrase title="BRME_by_xen_tag_explain" version_id="1010200" version_string="1.1.2"><![CDATA[Use Tinhte XenTag field for keyword. Addon [Tinhte] XenTag required]]></phrase>
+    <phrase title="BRME_enabled_author" version_id="100" version_string="1.0.0"><![CDATA[Enable Author]]></phrase>
+    <phrase title="BRME_enabled_author_explain" version_id="100" version_string="1.0.0"><![CDATA[Enable author meta tag]]></phrase>
+    <phrase title="BRME_enabled_copyright" version_id="100" version_string="1.0.0"><![CDATA[Enable Copyright]]></phrase>
+    <phrase title="BRME_enabled_copyright_explain" version_id="100" version_string="1.0.0"><![CDATA[Enable copyright meta tag]]></phrase>
+    <phrase title="BRME_enabled_description" version_id="100" version_string="1.0.0"><![CDATA[Enable Description]]></phrase>
+    <phrase title="BRME_enabled_description_explain" version_id="100" version_string="1.0.0"><![CDATA[Enable description meta tag]]></phrase>
+    <phrase title="BRME_enabled_keywords" version_id="100" version_string="1.0.0"><![CDATA[Enable Keywords]]></phrase>
+    <phrase title="BRME_enabled_keywords_explain" version_id="100" version_string="1.0.0"><![CDATA[Enable keywords meta tag]]></phrase>
+    <phrase title="BRME_enabled_robots" version_id="100" version_string="1.0.0"><![CDATA[Enable Robots]]></phrase>
+    <phrase title="BRME_enabled_robots_explain" version_id="100" version_string="1.0.0"><![CDATA[Enable robots meta tag]]></phrase>
+    <phrase title="BRME_enabled_title" version_id="1030000" version_string="1.3.0"><![CDATA[Enable Title]]></phrase>
+    <phrase title="BRME_enabled_title_explain" version_id="1030000" version_string="1.3.0"><![CDATA[Enable title meta tag]]></phrase>
+    <phrase title="BRME_enter_keywords_meta_separated_by_comma" version_id="100" version_string="1.0.0"><![CDATA[Enter keywords metadata, separated by comma]]></phrase>
+    <phrase title="BRME_fixed" version_id="100" version_string="1.0.0"><![CDATA[Fixed value]]></phrase>
+    <phrase title="BRME_fixed_explain" version_id="100" version_string="1.0.0"><![CDATA[Using fixed data for meta tag]]></phrase>
+    <phrase title="BRME_follow" version_id="1050000" version_string="1.5.0"><![CDATA[follow]]></phrase>
+    <phrase title="BRME_if_selected_resources_from_this_category_will_use_this_meta_option" version_id="1050200" version_string="1.5.2"><![CDATA[If selected, resources from this category will use this meta option.]]></phrase>
+    <phrase title="BRME_if_selected_threads_from_this_forum_will_use_this_meta_option" version_id="1050100" version_string="1.5.1"><![CDATA[If selected, threads from this forum will use this meta option.]]></phrase>
+    <phrase title="BRME_index" version_id="1050000" version_string="1.5.0"><![CDATA[index]]></phrase>
+    <phrase title="BRME_meta_description" version_id="100" version_string="1.0.0"><![CDATA[Meta Description]]></phrase>
+    <phrase title="BRME_meta_description_hint" version_id="1050200" version_string="1.5.2"><![CDATA[Enter description for metadata. By default it will using content's message or description.]]></phrase>
+    <phrase title="BRME_meta_keywords" version_id="100" version_string="1.0.0"><![CDATA[Meta Keywords]]></phrase>
+    <phrase title="BRME_meta_robot_follow" version_id="1050000" version_string="1.5.0"><![CDATA[Meta Robot Follow]]></phrase>
+    <phrase title="BRME_meta_robot_index" version_id="1050000" version_string="1.5.0"><![CDATA[Meta Robot Index]]></phrase>
+    <phrase title="BRME_meta_title" version_id="1030000" version_string="1.3.0"><![CDATA[Meta Title]]></phrase>
+    <phrase title="BRME_meta_title_hint" version_id="1030400" version_string="1.3.4"><![CDATA[Enter title for metadata. By default it will using your content title.]]></phrase>
+    <phrase title="BRME_nofollow" version_id="1050000" version_string="1.5.0"><![CDATA[nofollow]]></phrase>
+    <phrase title="BRME_noindex" version_id="1050000" version_string="1.5.0"><![CDATA[noindex]]></phrase>
+    <phrase title="BRME_no_set" version_id="1050000" version_string="1.5.0"><![CDATA[Not Set]]></phrase>
+    <phrase title="BRME_use_this_meta_for_resources" version_id="1050200" version_string="1.5.2"><![CDATA[Use this meta robot option for resources]]></phrase>
+    <phrase title="BRME_use_this_meta_for_threads" version_id="1050200" version_string="1.5.2"><![CDATA[Use this meta robot option for threads]]></phrase>
+    <phrase title="BRME_using_option_robots_metadata_value" version_id="1050000" version_string="1.5.0"><![CDATA[Using options robots metadata value]]></phrase>
+    <phrase title="BRME_using_xen_tag" version_id="1020000" version_string="1.2.0"><![CDATA[Using XenTag]]></phrase>
+    <phrase title="option_BRME_copyrightMetadata" version_id="100" version_string="1.0.0"><![CDATA[Copyright Metadata]]></phrase>
+    <phrase title="option_BRME_copyrightMetadata_explain" version_id="100" version_string="1.0.0"><![CDATA[Setup copyright metadata]]></phrase>
+    <phrase title="option_BRME_defaultCategoryDes" version_id="1080000" version_string="1.8.0"><![CDATA[Default Resource's Category Description Metadata]]></phrase>
+    <phrase title="option_BRME_defaultCategoryDes_explain" version_id="1080000" version_string="1.8.0"><![CDATA[Leave blank to use the default description. You may use these placeholders:{$categoryTitle} - the category's title]]></phrase>
+    <phrase title="option_BRME_defaultCategoryTitle" version_id="1080000" version_string="1.8.0"><![CDATA[Default Resource's Category Title Metadata]]></phrase>
+    <phrase title="option_BRME_defaultCategoryTitle_explain" version_id="1080000" version_string="1.8.0"><![CDATA[Leave blank to use the default title. You may use these placeholders:{$categoryTitle} - the category's title]]></phrase>
+    <phrase title="option_BRME_defaultForumDes" version_id="1070000" version_string="1.7.0"><![CDATA[Default Forum Description Metadata]]></phrase>
+    <phrase title="option_BRME_defaultForumDes_explain" version_id="1080000" version_string="1.8.0"><![CDATA[Leave blank to use the default description. You may use these placeholders:{$forumTitle} - the forum's title]]></phrase>
+    <phrase title="option_BRME_defaultForumTitle" version_id="1070000" version_string="1.7.0"><![CDATA[Default Forum Title Metadata]]></phrase>
+    <phrase title="option_BRME_defaultForumTitle_explain" version_id="1070000" version_string="1.7.0"><![CDATA[Leave blank to use the default title. You may use these placeholders:{$forumTitle} - the forum's title]]></phrase>
+    <phrase title="option_BRME_defaultImageResource" version_id="1070000" version_string="1.7.0"><![CDATA[Default Post Image Alt Tag Resource]]></phrase>
+    <phrase title="option_BRME_defaultImageResource_explain" version_id="1070000" version_string="1.7.0"><![CDATA[Leave blank to use the default alt tag. You may use url of image.]]></phrase>
+    <phrase title="option_BRME_defaultPostImageAltTag" version_id="1060500" version_string="1.6.5"><![CDATA[Default Post Image Alt Tag]]></phrase>
+    <phrase title="option_BRME_defaultPostImageAltTag_explain" version_id="1080000" version_string="1.8.0"><![CDATA[Leave blank to use the default alt tag.]]></phrase>
+    <phrase title="option_BRME_defaultResourceDes" version_id="1070000" version_string="1.7.0"><![CDATA[Default Resource Description Metadata]]></phrase>
+    <phrase title="option_BRME_defaultResourceDes_explain" version_id="1080000" version_string="1.8.0"><![CDATA[Leave blank to use the default title. You may use these placeholders:{$title} - the resource's title: {$categoryTitle} - the category's title, and {$author} - the username of the author]]></phrase>
+    <phrase title="option_BRME_defaultResourceKeywords" version_id="1070000" version_string="1.7.0"><![CDATA[Default Resource Keywords Metadata]]></phrase>
+    <phrase title="option_BRME_defaultResourceKeywords_explain" version_id="1080000" version_string="1.8.0"><![CDATA[You may use these placeholders:{$title} - the resource's title: {$categoryTitle} - the category's title, and {$author} - the username of the author]]></phrase>
+    <phrase title="option_BRME_defaultResourceTitle" version_id="1070000" version_string="1.7.0"><![CDATA[Default Resource Title Metadata]]></phrase>
+    <phrase title="option_BRME_defaultResourceTitle_explain" version_id="1080000" version_string="1.8.0"><![CDATA[Leave blank to use the default title. You may use these placeholders:{$title} - the resource's title: {$categoryTitle} - the category's title, and {$author} - the username of the author]]></phrase>
+    <phrase title="option_BRME_defaultThreadDes" version_id="1060500" version_string="1.6.5"><![CDATA[Default Thread Description Metadata]]></phrase>
+    <phrase title="option_BRME_defaultThreadDes_explain" version_id="1060500" version_string="1.6.5"><![CDATA[Leave blank to use the default description. You may use these placeholder: {$title} - the thread's title; {$forumTitle} - the forum's title, and {$author} - the username of the author.]]></phrase>
+    <phrase title="option_BRME_defaultThreadKeywords" version_id="1060500" version_string="1.6.5"><![CDATA[Default Thread Keywords Metadata]]></phrase>
+    <phrase title="option_BRME_defaultThreadKeywords_explain" version_id="1060500" version_string="1.6.5"><![CDATA[You may use these placeholder: {$title} - the thread's title; {$forumTitle} - the forum's title, and {$author} - the username of the author.]]></phrase>
+    <phrase title="option_BRME_defaultThreadTitle" version_id="1070000" version_string="1.7.0"><![CDATA[Default Thread Title Metadata]]></phrase>
+    <phrase title="option_BRME_defaultThreadTitle_explain" version_id="1070000" version_string="1.7.0"><![CDATA[Leave blank to use the default title. You may use these placeholders:{$title} - the thread's title: {$forumTitle} - the forum's title, and {$author} - the username of the author]]></phrase>
+    <phrase title="option_BRME_descriptionLength" version_id="1060500" version_string="1.6.5"><![CDATA[Maximum Meta Description Length]]></phrase>
+    <phrase title="option_BRME_descriptionLength_explain" version_id="1060500" version_string="1.6.5"><![CDATA[The maximum number of characters that can be in a meta description.]]></phrase>
+    <phrase title="option_BRME_forumMetadata" version_id="100" version_string="1.0.0"><![CDATA[Node Forum Metadata Options]]></phrase>
+    <phrase title="option_BRME_forumMetadata_explain" version_id="100" version_string="1.0.0"><![CDATA[Setup metadata for forum node]]></phrase>
+    <phrase title="option_BRME_keywordLength" version_id="1060500" version_string="1.6.5"><![CDATA[Maximum Meta Title Length]]></phrase>
+    <phrase title="option_BRME_keywordLength_explain" version_id="1060500" version_string="1.6.5"><![CDATA[The maximum number of characters that can be in a meta keyword.]]></phrase>
+    <phrase title="option_BRME_removeBoardTitle" version_id="1030000" version_string="1.3.0"><![CDATA[Remove Board Title]]></phrase>
+    <phrase title="option_BRME_removeBoardTitle_explain" version_id="1030000" version_string="1.3.0"><![CDATA[Remove board title from title tag when viewing thread page]]></phrase>
+    <phrase title="option_BRME_resourceCategory" version_id="1050200" version_string="1.5.2"><![CDATA[Resource Category Metadata Options]]></phrase>
+    <phrase title="option_BRME_resourceCategory_explain" version_id="1050200" version_string="1.5.2"><![CDATA[Setup metadata for resource category]]></phrase>
+    <phrase title="option_BRME_resourceMetadata" version_id="1050200" version_string="1.5.2"><![CDATA[Resource Metadata Options]]></phrase>
+    <phrase title="option_BRME_resourceMetadata_explain" version_id="1050200" version_string="1.5.2"><![CDATA[Setup metadata for resource]]></phrase>
+    <phrase title="option_BRME_robotsMetadata" version_id="100" version_string="1.0.0"><![CDATA[Robots Metadata]]></phrase>
+    <phrase title="option_BRME_robotsMetadata_explain" version_id="100" version_string="1.0.0"><![CDATA[Setup robots metadata]]></phrase>
+    <phrase title="option_BRME_threadMetadata" version_id="100" version_string="1.0.0"><![CDATA[Thread Metadata Options]]></phrase>
+    <phrase title="option_BRME_threadMetadata_explain" version_id="100" version_string="1.0.0"><![CDATA[Setup metadata for thread]]></phrase>
+    <phrase title="option_BRME_titleLength" version_id="1060500" version_string="1.6.5"><![CDATA[Maximum Meta Title Length]]></phrase>
+    <phrase title="option_BRME_titleLength_explain" version_id="1060500" version_string="1.6.5"><![CDATA[The maximum number of characters that can be in a meta title.]]></phrase>
+    <phrase title="option_group_BR_MetadataEssential" version_id="100" version_string="1.0.0"><![CDATA[Brivium - Metadata Essential]]></phrase>
+    <phrase title="option_group_BR_MetadataEssential_description" version_id="100" version_string="1.0.0"><![CDATA[]]></phrase>
+    <phrase title="permission_forum_BRME_changeDesMeta" version_id="1060000" version_string="1.6.0"><![CDATA[Change thread description metadata]]></phrase>
+    <phrase title="permission_forum_BRME_changeKeyword" version_id="1060000" version_string="1.6.0"><![CDATA[Change thread keyword metadata]]></phrase>
+    <phrase title="permission_forum_BRME_changeRobotFollow" version_id="1060000" version_string="1.6.0"><![CDATA[Change thread robot follow metadata]]></phrase>
+    <phrase title="permission_forum_BRME_changeRobotIndex" version_id="1060000" version_string="1.6.0"><![CDATA[Change thread robot index metadata]]></phrase>
+    <phrase title="permission_forum_BRME_changeTitleMeta" version_id="1060000" version_string="1.6.0"><![CDATA[Change thread title metadata]]></phrase>
+    <phrase title="permission_interface_BR_MetadataEssential" version_id="1060000" version_string="1.6.0"><![CDATA[Brivium - Metadata Essential]]></phrase>
+    <phrase title="permission_resource_BRME_changeDesMeta" version_id="1060000" version_string="1.6.0"><![CDATA[Change resource description metadata]]></phrase>
+    <phrase title="permission_resource_BRME_changeKeyword" version_id="1060000" version_string="1.6.0"><![CDATA[Change resource keyword metadata]]></phrase>
+    <phrase title="permission_resource_BRME_changeRobotFollow" version_id="1060000" version_string="1.6.0"><![CDATA[Change resource robot follow metadata]]></phrase>
+    <phrase title="permission_resource_BRME_changeRobotIndex" version_id="1060000" version_string="1.6.0"><![CDATA[Change resource robot index metadata]]></phrase>
+    <phrase title="permission_resource_BRME_changeTitleMeta" version_id="1060000" version_string="1.6.0"><![CDATA[Change resource title metadata]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="BRME_page_container_head" version_id="1080100" version_string="1.8.1"><![CDATA[<xen:if is="{$brmeOptions.enabled_description}">
+	<xen:if is="{$brmeOptions.description}!='fixed' && {$metaData.description}">
+		<meta name="description" content="{xen:raw $metaData.description}">
+	<xen:elseif is="{$brmeOptions.descriptionFixed}"/>
+		<meta name="description" content="{xen:raw $brmeOptions.descriptionFixed}">
+	</xen:if>
+</xen:if>
+<xen:if is="{$brmeOptions.enabled_keywords}">
+	<xen:if is="{$brmeOptions.keywords}!='fixed' && {$metaData.keywords}">
+		<meta name="keywords" content="{xen:raw $metaData.keywords}">
+	<xen:elseif is="{$brmeOptions.keywordsFixed}"/>
+		<meta name="keywords" content="{xen:raw $brmeOptions.keywordsFixed}">
+	</xen:if>
+</xen:if>
+<xen:if is="{$brmeOptions.enabled_author}">
+	<xen:if is="{$brmeOptions.author}!='fixed' && {$metaData.author}">
+		<meta name="author" content="{xen:raw $metaData.author}">
+	<xen:elseif is="{$brmeOptions.authorFixed}"/>
+		<meta name="author" content="{xen:raw $brmeOptions.authorFixed}">
+	</xen:if>
+</xen:if>
+<xen:if is="{$xenOptions.BRME_copyrightMetadata.enabled_copyright} && {$xenOptions.BRME_copyrightMetadata.copyright}">
+	<meta name="copyright" content="{xen:raw $xenOptions.BRME_copyrightMetadata.copyright}">
+</xen:if>
+<xen:if is="{$metaData.robot}">
+	<meta name="robots" content="{xen:raw $metaData.robot}">
+</xen:if>
+<xen:if is="{$metaData.title}">
+	<meta property="og:title" content="{xen:raw $metaData.title}" />
+</xen:if>]]></template>
+    <template title="BRME_resource_add" version_id="1060500" version_string="1.6.5"><![CDATA[<xen:if hascontent="true">
+	<xen:require js="js/brivium/MetadataEssential/meta_counter.js" />
+	<style>
+		.brmeCounter{
+			color: green;
+		}
+		.brmeCounter.warning
+		{
+			color: orange;
+			font-weight: bold;
+		}
+		.brmeCounter.error
+		{
+			color: red;
+			font-weight: bold;
+		}
+	</style>
+	<xen:contentcheck>
+	<xen:if is="{$canChangeTitleMeta} && {$xenOptions.BRME_resourceMetadata.title}=='user' && {$xenOptions.BRME_resourceMetadata.enabled_title}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_meta_title">{xen:phrase BRME_meta_title}:</label></dt>
+		<dd><input type="text" id="ctrl_brme_meta_description" name="brme_meta_title" maxlength="250" data-charlimit="{$xenOptions.BRME_titleLength}" value="{$resource.metaData.title}" class="textCtrl BRMEMetaEditor" />
+			<p class="explain">{xen:phrase BRME_meta_title_hint}.</p>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeDescriptionMeta} && {$xenOptions.BRME_resourceMetadata.description}=='user' && {$xenOptions.BRME_resourceMetadata.enabled_description}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_meta_description">{xen:phrase BRME_meta_description}:</label></dt>
+		<dd><input type="text" id="ctrl_brme_meta_description" name="brme_meta_description" maxlength="250" data-charlimit="{$xenOptions.BRME_descriptionLength}" value="{$resource.metaData.description}" class="textCtrl BRMEMetaEditor" />
+			<p class="explain">{xen:phrase BRME_meta_description_hint}.</p>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeKeywordMeta} && {$xenOptions.BRME_resourceMetadata.keywords}=='user' && {$xenOptions.BRME_resourceMetadata.enabled_keywords}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_meta_keywords">{xen:phrase BRME_meta_keywords}:</label></dt>
+		<dd>
+			<input type="text" id="ctrl_brme_meta_keywords" name="brme_meta_keywords" data-charlimit="{$xenOptions.BRME_keywordLength}" value="{$resource.metaData.keywords}" class="textCtrl BRMEMetaEditor" />
+			<p class="explain">{xen:phrase BRME_enter_keywords_meta_separated_by_comma}.</p>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeRobotIndex}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_index">{xen:phrase BRME_meta_robot_index}:</label></dt>
+		<dd>
+			<select name="brme_index" id="ctrl_brme_index" class="textCtrl">
+				<option value="0" {xen:selected '!{$resource.metaData.index}'}>{xen:phrase BRME_no_set}</option>
+				<option value="1" {xen:selected '{$resource.metaData.index}==1'}>{xen:phrase BRME_index}</option>
+				<option value="2" {xen:selected '{$resource.metaData.index}==2'}>{xen:phrase BRME_noindex}</option>
+			</select>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeRobotFollow}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_follow">{xen:phrase BRME_meta_robot_follow}:</label></dt>
+		<dd>
+			<select name="brme_follow" id="ctrl_brme_follow" class="textCtrl">
+				<option value="0" {xen:selected '!{$resource.metaData.follow}'}>{xen:phrase BRME_no_set}</option>
+				<option value="1" {xen:selected '{$resource.metaData.follow}==1'}>{xen:phrase BRME_follow}</option>
+				<option value="2" {xen:selected '{$resource.metaData.follow}==2'}>{xen:phrase BRME_nofollow}</option>
+			</select>
+		</dd>
+	</dl>
+	</xen:if>
+	</xen:contentcheck>
+</xen:if>]]></template>
+    <template title="BRME_thread_create" version_id="1060500" version_string="1.6.5"><![CDATA[<xen:if hascontent="true">
+	<xen:require js="js/brivium/MetadataEssential/meta_counter.js" />
+	<style>
+		.brmeCounter{
+			color: green;
+		}
+		.brmeCounter.warning
+		{
+			color: orange;
+			font-weight: bold;
+		}
+		
+		.brmeCounter.error
+		{
+			color: red;
+			font-weight: bold;
+		}
+		
+	</style>
+	<xen:contentcheck>
+	<xen:if is="{$canChangeTitleMeta} && {$xenOptions.BRME_threadMetadata.title}=='user' && {$xenOptions.BRME_threadMetadata.enabled_title}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_meta_title">{xen:phrase BRME_meta_title}:</label></dt>
+		<dd><input type="text" id="ctrl_brme_meta_description" name="brme_meta_title" maxlength="250" data-charlimit="{$xenOptions.BRME_titleLength}" value="{$thread.metaData.title}" class="textCtrl BRMEMetaEditor" />
+			<p class="hint">{xen:phrase BRME_meta_title_hint}.</p>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeDescriptionMeta} && {$xenOptions.BRME_threadMetadata.description}=='user' && {$xenOptions.BRME_threadMetadata.enabled_description}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_meta_description">{xen:phrase BRME_meta_description}:</label></dt>
+		<dd><input type="text" id="ctrl_brme_meta_description" name="brme_meta_description" maxlength="250" data-charlimit="{$xenOptions.BRME_descriptionLength}" value="{$thread.metaData.description}" class="textCtrl BRMEMetaEditor" />
+			<p class="hint">{xen:phrase BRME_meta_description_hint}.</p>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeKeywordMeta} && {$xenOptions.BRME_threadMetadata.keywords}=='user' && {$xenOptions.BRME_threadMetadata.enabled_keywords}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_meta_keywords">{xen:phrase BRME_meta_keywords}:</label></dt>
+		<dd>
+			<input type="text" id="ctrl_brme_meta_keywords" name="brme_meta_keywords" data-charlimit="{$xenOptions.BRME_keywordLength}" value="{$thread.metaData.keywords}" class="textCtrl BRMEMetaEditor" />
+			<p class="hint">{xen:phrase BRME_enter_keywords_meta_separated_by_comma}.</p>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeRobotIndex}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_index">{xen:phrase BRME_meta_robot_index}:</label></dt>
+		<dd>
+			<select name="brme_index" id="ctrl_brme_index" class="textCtrl">
+				<option value="0" {xen:selected '!{$thread.metaData.index}'}>{xen:phrase BRME_no_set}</option>
+				<option value="1" {xen:selected '{$thread.metaData.index}==1'}>{xen:phrase BRME_index}</option>
+				<option value="2" {xen:selected '{$thread.metaData.index}==2'}>{xen:phrase BRME_noindex}</option>
+			</select>
+		</dd>
+	</dl>
+	</xen:if>
+	<xen:if is="{$canChangeRobotFollow}">
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_brme_follow">{xen:phrase BRME_meta_robot_follow}:</label></dt>
+		<dd>
+			<select name="brme_follow" id="ctrl_brme_follow" class="textCtrl">
+				<option value="0" {xen:selected '!{$thread.metaData.follow}'}>{xen:phrase BRME_no_set}</option>
+				<option value="1" {xen:selected '{$thread.metaData.follow}==1'}>{xen:phrase BRME_follow}</option>
+				<option value="2" {xen:selected '{$thread.metaData.follow}==2'}>{xen:phrase BRME_nofollow}</option>
+			</select>
+		</dd>
+	</dl>
+	</xen:if>
+	</xen:contentcheck>
+</xen:if>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="attached_files" modification_key="BRME_attached_files" description="Set default alt tag image." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[alt="{$attachment.filename}"]]></find>
+      <replace><![CDATA[alt="{xen:if $xenOptions.BRME_defaultPostImageAltTag, '{$xenOptions.BRME_defaultPostImageAltTag}', '{$attachment.filename}'}"]]></replace>
+    </modification>
+    <modification template="PAGE_CONTAINER" modification_key="BRME_change_title_display" description="Remove Board title from title" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<title><xen:if is="{$title}">{xen:raw $title} | {$xenOptions.boardTitle}<xen:else />{$xenOptions.boardTitle}</xen:if></title>]]></find>
+      <replace><![CDATA[<xen:if is="{$contentTemplate} == 'thread_view' && {$xenOptions.BRME_removeBoardTitle}">
+	<title><xen:if is="{$title}">{xen:raw $title}<xen:else />{$xenOptions.boardTitle}</xen:if></title>
+<xen:else />$0</xen:if>]]></replace>
+    </modification>
+    <modification template="forum_view" modification_key="BRME_forum_view" description="Remove description meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:description class="baseHtml">{xen:raw $forum.description}</xen:description>]]></find>
+      <replace><![CDATA[<xen:container var="$head.description"></xen:container>
+<xen:description class="baseHtml" skipmeta="true">{xen:raw $forum.description}</xen:description>]]></replace>
+    </modification>
+    <modification template="forum_view" modification_key="BRME_forum_view_og" description="Replace title og meta tag forum" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<xen:container.*xen:include template=\"open_graph_meta\".*<\/xen:include><\/xen:container>#imsU]]></find>
+      <replace><![CDATA[<xen:if is="{$brmeOptions.enabled_title}">
+	<xen:if is="{$brmeOptions.title}=='user' && {$metaData.title}">
+	<xen:container var="$head.openGraph"><xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:forums', $forum}</xen:set>
+		<xen:set var="$title">{xen:raw $metaData.title}</xen:set>
+	</xen:include></xen:container>
+	<xen:elseif is="{$brmeOptions.title}=='fixed' && {$brmeOptions.titleFixed}"/>
+	<xen:container var="$head.openGraph"><xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:forums', $forum}</xen:set>
+		<xen:set var="$title">{xen:raw $brmeOptions.titleFixed}</xen:set>
+	</xen:include></xen:container>
+	<xen:else />$0</xen:if>
+</xen:if>]]></replace>
+    </modification>
+    <modification template="forum_view" modification_key="BRME_forum_view_title" description="Replace title meta tag forum" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:title>{$forum.title}{xen:helper pagenumber, $page}</xen:title>]]></find>
+      <replace><![CDATA[<xen:if is="{$brmeOptions.enabled_title}"><xen:if is="{$brmeOptions.title}=='content'">$0<xen:else /><xen:title><xen:if is="{$brmeOptions.title}!='fixed' && {$metaData.title}"><xen:title>{xen:raw $metaData.title}{xen:helper pagenumber, $page}</xen:title><xen:elseif is="{$brmeOptions.titleFixed}"/><xen:title>{xen:raw $brmeOptions.titleFixed}{xen:helper pagenumber, $page}</xen:title></xen:if></xen:title></xen:if></xen:if>]]></replace>
+    </modification>
+    <modification template="resource_add" modification_key="BRME_resource_add" description="Add metadata field to resource edit" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:if is="{$showEditIconOption} AND !{$resource.resource_id}">]]></find>
+      <replace><![CDATA[<xen:include template="BRME_resource_add" />$0]]></replace>
+    </modification>
+    <modification template="resource_category" modification_key="BRME_resource_category" description="Replace title meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:title>{$category.category_title}</xen:title>]]></find>
+      <replace><![CDATA[<xen:if is="{$brmeOptions.enabled_title}"><xen:if is="{$brmeOptions.title}=='content'">$0<xen:else /><xen:title><xen:if is="{$brmeOptions.title}!='fixed' && {$metaData.title}">{xen:raw $metaData.title}{xen:helper pagenumber, $page}<xen:elseif is="{$brmeOptions.titleFixed}"/>{xen:raw $brmeOptions.titleFixed}{xen:helper pagenumber, $page}</xen:if></xen:title></xen:if></xen:if>]]></replace>
+    </modification>
+    <modification template="resource_category" modification_key="BRME_resource_category_description" description="Skip description meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:description class="baseHtml">{xen:raw $category.category_description}</xen:description>]]></find>
+      <replace><![CDATA[<xen:container var="$head.description"></xen:container>
+<xen:description class="baseHtml" skipmeta="true">{xen:raw $category.category_description}</xen:description>]]></replace>
+    </modification>
+    <modification template="resource_update" modification_key="BRME_resource_update" description="Set default alt img tag." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[{$attachment.filename}]]></find>
+      <replace><![CDATA[{xen:if $xenOptions.BRME_defaultImageResource, '{$xenOptions.BRME_defaultImageResource}', '{$attachment.filename}'}]]></replace>
+    </modification>
+    <modification template="resource_view" modification_key="BRME_resource_view" description="Replace title meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<div class="innerContent">
+	{xen:raw $_subView}
+</div>]]></find>
+      <replace><![CDATA[$0<xen:if is="{$brmeOptions.enabled_title}"><xen:if is="{$brmeOptions.title}=='user' && {$metaData.title}"><xen:title>{xen:raw $metaData.title}</xen:title><xen:elseif is="{$brmeOptions.title}=='fixed' && {$brmeOptions.titleFixed}"/><xen:title>{xen:raw $brmeOptions.titleFixed}</xen:title></xen:if></xen:if>]]></replace>
+    </modification>
+    <modification template="resource_view" modification_key="BRME_resource_view_description" description="Replace description meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:description>{$resource.tag_line}</xen:description>]]></find>
+      <replace><![CDATA[<xen:description></xen:description>]]></replace>
+    </modification>
+    <modification template="thread_edit" modification_key="BRME_thread_edit" description="Add metadata field to thread edit" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:include template="thread_fields_status" />]]></find>
+      <replace><![CDATA[$0<xen:include template="BRME_thread_create" />]]></replace>
+    </modification>
+    <modification template="thread_edit" modification_key="BRME_thread_edit_form" description="Change form to scrollable" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<form action="{xen:link 'threads/save', $thread}" method="post" class="xenForm formOverlay">]]></find>
+      <replace><![CDATA[<form action="{xen:link 'threads/save', $thread}" method="post" class="xenForm formOverlay overlayScroll">]]></replace>
+    </modification>
+    <modification template="thread_view" modification_key="BRME_thread_view" description="Remove description meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<meta name="description" content="{xen:helper snippet, $firstPost.message, 155}" /></xen:container>]]></find>
+      <replace><![CDATA[</xen:container>]]></replace>
+    </modification>
+    <modification template="thread_view" modification_key="BRME_thread_view_og_description" description="Replace og:desciption meta tag thread" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:container var="$head.openGraph"><xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:threads', $thread}</xen:set>
+		<xen:set var="$title">{xen:helper threadPrefix, $thread, escaped}{$thread.title}</xen:set>
+		<xen:set var="$description">{xen:helper snippet, $firstPost.message, 155}</xen:set>
+		<xen:set var="$avatar">{xen:helper avatar, $thread, m, 0, 1}</xen:set>
+	</xen:include></xen:container>]]></find>
+      <replace><![CDATA[<xen:if is="{$brmeOptions.enabled_description}">
+	<xen:if is="{$brmeOptions.description}!='fixed' && {$metaData.description}">
+		<xen:container var="$head.openGraph"><xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:threads', $thread}</xen:set>
+		<xen:set var="$title">{xen:helper threadPrefix, $thread, escaped}{$thread.title}</xen:set>
+		<xen:set var="$description">{xen:raw $metaData.description}</xen:set>
+		<xen:set var="$avatar">{xen:helper avatar, $thread, m, 0, 1}</xen:set>
+	</xen:include></xen:container>
+	<xen:elseif is="{$brmeOptions.descriptionFixed}"/>
+	<xen:container var="$head.openGraph"><xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:threads', $thread}</xen:set>
+		<xen:set var="$title">{xen:helper threadPrefix, $thread, escaped}{$thread.title}</xen:set>
+		<xen:set var="$description">{xen:raw $metaData.description}</xen:set>
+		<xen:set var="$avatar">{xen:helper avatar, $thread, m, 0, 1}</xen:set>
+	</xen:include></xen:container>
+	</xen:if>
+<xen:else/>$0</xen:if>]]></replace>
+    </modification>
+    <modification template="thread_view" modification_key="BRME_thread_view_title" description="Replace title meta tag" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[{xen:helper threadPrefix, $thread, escaped}{$thread.title}]]></find>
+      <replace><![CDATA[<xen:if is="{$brmeOptions.enabled_title}">
+	<xen:if is="{$brmeOptions.title} == 'user' && {$metaData.title}">
+		{xen:raw $metaData.title}
+	<xen:elseif is="{$brmeOptions.title}=='fixed' && {$brmeOptions.titleFixed}"/>
+		{xen:raw $brmeOptions.titleFixed}
+	<xen:else />
+		$0
+	</xen:if>
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+  <brc_actions/>
+</addon>

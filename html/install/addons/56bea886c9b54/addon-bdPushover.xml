@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdPushover" title="[bd] Push Notification" version_string="2.1.1b" version_id="12" url="" install_callback_class="bdPushover_Installer" install_callback_method="install" uninstall_callback_class="bdPushover_Installer" uninstall_callback_method="uninstall" visitor_id="1566">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="bdpushover_option_template_content_types"><![CDATA[<xen:controlunit label="{$preparedOption.title}" hint="{$preparedOption.hint}">
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+	<xen:html>
+		<ul>
+			<xen:foreach loop="$contentTypes" key="$contentType" value="$contentName">
+				<li>
+					{$contentName}:
+					<xen:radio name="{$fieldPrefix}[{$preparedOption.option_id}][{$contentType}]">
+						<xen:option value="" selected="{$value.{$contentType}} != 'disabled'">{xen:phrase yes}</xen:option>
+						<xen:option value="disabled" selected="{$value.{$contentType}} == 'disabled'">{xen:phrase no}</xen:option>
+					</xen:radio>
+				</li>
+			</xen:foreach>
+		</ul>
+		
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+		{xen:raw $editLink}
+	</xen:html>
+</xen:controlunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="front_controller_post_view" execute_order="10" callback_class="bdPushover_Listener" callback_method="front_controller_post_view" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="bdPushover_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="10" callback_class="bdPushover_Listener" callback_method="load_class" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="bdPushover" display_order="9999" debug_only="0"/>
+    <option option_id="bdPushover_contents" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>bdPushover_Option::renderContentTypes</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bdPushover" display_order="500"/>
+    </option>
+    <option option_id="bdPushover_deferred" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPushover" display_order="1000"/>
+    </option>
+    <option option_id="bdPushover_pushConversationNotification" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPushover" display_order="510"/>
+    </option>
+    <option option_id="bdPushover_pushbulletId" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPushover" display_order="100"/>
+    </option>
+    <option option_id="bdPushover_pushbulletSecret" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPushover" display_order="110"/>
+    </option>
+    <option option_id="bdPushover_token" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPushover" display_order="10"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="general" permission_id="bdPushover_associate" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="9999"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="bdpushover_alert_from_x" version_id="2" version_string="1.0.0"><![CDATA[Alert from {boardTitle}]]></phrase>
+    <phrase title="bdpushover_associated_pushbullet" version_id="5" version_string="1.0.3"><![CDATA[Your Pushbullet has been associated successfully.]]></phrase>
+    <phrase title="bdpushover_associated_pushbullet_account" version_id="5" version_string="1.0.3"><![CDATA[Associated Pushbullet Account]]></phrase>
+    <phrase title="bdpushover_associated_pushover_account" version_id="1" version_string="0.9-dev"><![CDATA[Associated Pushover Account]]></phrase>
+    <phrase title="bdpushover_associated_pushover_group" version_id="1" version_string="0.9-dev"><![CDATA[Your Pushover Group Key has been associated successfully.]]></phrase>
+    <phrase title="bdpushover_associated_pushover_user" version_id="1" version_string="0.9-dev"><![CDATA[Your Pushover User Key has been associated successfully.]]></phrase>
+    <phrase title="bdpushover_associate_with_pushbullet" version_id="5" version_string="1.0.3"><![CDATA[Associate with Pushbullet]]></phrase>
+    <phrase title="bdpushover_associate_with_pushover" version_id="1" version_string="0.9-dev"><![CDATA[Associate with Pushover]]></phrase>
+    <phrase title="bdpushover_change_lower" version_id="4" version_string="1.0.2"><![CDATA[change]]></phrase>
+    <phrase title="bdpushover_device" version_id="1" version_string="0.9-dev"><![CDATA[Device]]></phrase>
+    <phrase title="bdpushover_device_all" version_id="1" version_string="0.9-dev"><![CDATA[All Devices]]></phrase>
+    <phrase title="bdpushover_device_explain" version_id="1" version_string="0.9-dev"><![CDATA[Enter name of one of your devices here to restrict {boardTitle} alerts to that device only. Leave it blank to receive alerts in all devices.]]></phrase>
+    <phrase title="bdpushover_device_not_found" version_id="5" version_string="1.0.3"><![CDATA[The specified device could not be found.]]></phrase>
+    <phrase title="bdpushover_device_select_explain" version_id="4" version_string="1.0.2"><![CDATA[Choose one of your devices to restrict {boardTitle} alerts to that device only. Choose "{all}" to receive push messages on all devices.]]></phrase>
+    <phrase title="bdpushover_device_x_not_found" version_id="1" version_string="0.9-dev"><![CDATA[The "{device}" device cannot be found. Have you added the device to your Pushover account? You can leave the Device textbox blank to send alerts to all of your devices.]]></phrase>
+    <phrase title="bdpushover_disassociate_pushbullet_account" version_id="5" version_string="1.0.3"><![CDATA[Disassociate Pushbullet Account]]></phrase>
+    <phrase title="bdpushover_disassociate_pushover_account" version_id="1" version_string="0.9-dev"><![CDATA[Disassociate Pushover Account]]></phrase>
+    <phrase title="bdpushover_error_occurred_while_connecting_with_pushbullet" version_id="5" version_string="1.0.3"><![CDATA[An error occurred while connecting with Pushbullet. Please try again later.]]></phrase>
+    <phrase title="bdpushover_group_key" version_id="1" version_string="0.9-dev"><![CDATA[Group Key]]></phrase>
+    <phrase title="bdpushover_hi_x_this_confirms_able_receive_all_devices" version_id="2" version_string="1.0.0"><![CDATA[Hi {user}, this message confirms that you are now able to receive alerts from {boardTitle} on all of your devices.]]></phrase>
+    <phrase title="bdpushover_hi_x_this_confirms_able_receive_device_x" version_id="2" version_string="1.0.0"><![CDATA[Hi {user}, this message confirms that you are now able to receive alerts from {boardTitle} on your device "{device}".]]></phrase>
+    <phrase title="bdpushover_key_and_device" version_id="4" version_string="1.0.2"><![CDATA[Key and Device]]></phrase>
+    <phrase title="bdpushover_no_devices_found" version_id="1" version_string="0.9-dev"><![CDATA[No devices could be found in your Pushover account. You should connect your device before trying to set it up or you can leave the Device textbox blank to send alerts to all of your future devices.]]></phrase>
+    <phrase title="bdpushover_priorities" version_id="4" version_string="1.0.2"><![CDATA[Push Message Priorities]]></phrase>
+    <phrase title="bdpushover_priority_disabled" version_id="4" version_string="1.0.2"><![CDATA[Disabled]]></phrase>
+    <phrase title="bdpushover_priority_emergency" version_id="4" version_string="1.0.2"><![CDATA[Emergency Priority]]></phrase>
+    <phrase title="bdpushover_priority_explain" version_id="4" version_string="1.0.2"><![CDATA[Choose different priority for each content type:<br />
+- {disabled} content won't send you push messages.<br />
+- {low_priority} content will push messages but they won't play sound or vibrate the device.<br />
+- {normal_priority} content will push messages with sound and vibration as usual.<br />
+- {high_priority} content's messages will always play sound and trigger vibration even if the device is in quiet mode, they also show up with red color in message list.<br />
+- {emergency_priority} content will have its messages pushed repeatedly until they are acknowledged on the device, retries happen every 30 seconds for maximum a day.]]></phrase>
+    <phrase title="bdpushover_priority_high" version_id="4" version_string="1.0.2"><![CDATA[High Priority]]></phrase>
+    <phrase title="bdpushover_priority_low" version_id="4" version_string="1.0.2"><![CDATA[Low Priority]]></phrase>
+    <phrase title="bdpushover_priority_normal" version_id="4" version_string="1.0.2"><![CDATA[Normal Priority]]></phrase>
+    <phrase title="bdpushover_pushbullet_account" version_id="5" version_string="1.0.3"><![CDATA[Account]]></phrase>
+    <phrase title="bdpushover_pushbullet_contents_explain" version_id="5" version_string="1.0.3"><![CDATA[You can choose to receive push notifications for only certain type of alerts. For those that you don't want to receive, choose {no}.]]></phrase>
+    <phrase title="bdpushover_pushbullet_email_not_found" version_id="8" version_string="2.0.0"><![CDATA[Pushbullet email could not be determined.]]></phrase>
+    <phrase title="bdpushover_pushbullet_integration" version_id="5" version_string="1.0.3"><![CDATA[Pushbullet Integration]]></phrase>
+    <phrase title="bdpushover_pushover_integration" version_id="1" version_string="0.9-dev"><![CDATA[Pushover Integration]]></phrase>
+    <phrase title="bdpushover_push_disabled_for" version_id="9" version_string="2.0.0b"><![CDATA[Push notification is disabled for]]></phrase>
+    <phrase title="bdpushover_setup_content_priorities" version_id="4" version_string="1.0.2"><![CDATA[Setup Push Message Priority]]></phrase>
+    <phrase title="bdpushover_sound" version_id="4" version_string="1.0.2"><![CDATA[Notification Sound]]></phrase>
+    <phrase title="bdpushover_sound_default" version_id="4" version_string="1.0.2"><![CDATA[Device Default]]></phrase>
+    <phrase title="bdpushover_sound_explain" version_id="4" version_string="1.0.2"><![CDATA[Choose a unique notification sound for alerts from {boardTitle} to easily recognize it. You can also choose "{default}" to use the configured device sound. To avoid disturbing your peers, the "{none}" choice fits perfectly.]]></phrase>
+    <phrase title="bdpushover_user_cannot_validated_please_verify" version_id="1" version_string="0.9-dev"><![CDATA[The specified Pushover User Key could not be validated. Please verify if you copied and pasted correctly.]]></phrase>
+    <phrase title="bdpushover_user_key" version_id="1" version_string="0.9-dev"><![CDATA[User Key]]></phrase>
+    <phrase title="bdpushover_user_key_explain" version_id="1" version_string="0.9-dev"><![CDATA[Enter your User Key from Pushover here. <a href="https://pushover.net/" target="_blank">Register for an account</a> if you haven't done so.]]></phrase>
+    <phrase title="bdpushover_view_content_x" version_id="1" version_string="0.9-dev"><![CDATA[View {content}]]></phrase>
+    <phrase title="bdpushover_welcome_to_x" version_id="2" version_string="1.0.0"><![CDATA[Welcome to {boardTitle}]]></phrase>
+    <phrase title="bdpushover_your_account_is_not_currently_associated_with_pushbullet_account" version_id="5" version_string="1.0.3"><![CDATA[Your account is not currently associated with a Pushbullet account. Associating with Pushbullet allows you to receive alerts on your devices.]]></phrase>
+    <phrase title="bdpushover_your_account_is_not_currently_associated_with_pushover_account" version_id="1" version_string="0.9-dev"><![CDATA[Your account is not currently associated with a Pushover account. Associating with Pushover allows you to receive alerts on your devices.]]></phrase>
+    <phrase title="option_bdPushover_contents" version_id="5" version_string="1.0.3"><![CDATA[Pushable Contents]]></phrase>
+    <phrase title="option_bdPushover_contents_explain" version_id="5" version_string="1.0.3"><![CDATA[Admin can choose to allow push notification for only certain types of alert. Select No to disable the content type completely.]]></phrase>
+    <phrase title="option_bdPushover_deferred" version_id="1" version_string="0.9-dev"><![CDATA[Delayed Push]]></phrase>
+    <phrase title="option_bdPushover_deferred_explain" version_id="4" version_string="1.0.2"><![CDATA[Enable this option to off-load pushing to a background request. Doing this will improve user experience because members will not have to wait a few extra seconds when their actions trigger some pushes. Another nice side effect is the push message will be dismissed if the alerted user read the alert before the push message is sent. This will cause a slight delay though.]]></phrase>
+    <phrase title="option_bdPushover_pushbulletId" version_id="7" version_string="2.0.0"><![CDATA[Pushbullet Client ID]]></phrase>
+    <phrase title="option_bdPushover_pushbulletId_explain" version_id="7" version_string="2.0.0"><![CDATA[Enter your app API Client ID here. <a href="https://www.pushbullet.com/create-client" target="_blank">Create a new client</a> if you haven't done so yet. It is required to enter http://domain.com/xenforo/register/pushbullet as your redirect uri in Pushbullet.]]></phrase>
+    <phrase title="option_bdPushover_pushbulletSecret" version_id="5" version_string="1.0.3"><![CDATA[Pushbullet Client Secret]]></phrase>
+    <phrase title="option_bdPushover_pushbulletSecret_explain" version_id="5" version_string="1.0.3"><![CDATA[]]></phrase>
+    <phrase title="option_bdPushover_pushConversationNotification" version_id="9" version_string="2.0.0b"><![CDATA[Push Conversation Notifications]]></phrase>
+    <phrase title="option_bdPushover_pushConversationNotification_explain" version_id="9" version_string="2.0.0b"><![CDATA[Enable this option to push conversation actions to users. Users can still opt-out of conversation notifications by disabling it in the contents list.]]></phrase>
+    <phrase title="option_bdPushover_token" version_id="5" version_string="1.0.3"><![CDATA[Pushover API Token/Key]]></phrase>
+    <phrase title="option_bdPushover_token_explain" version_id="5" version_string="1.0.3"><![CDATA[Enter your app API Token/Key here. <a href="https://pushover.net/apps" target="_blank">Register for an app</a> if you haven't done so yet.]]></phrase>
+    <phrase title="option_group_bdPushover" version_id="5" version_string="1.0.3"><![CDATA[[bd] Push Notification]]></phrase>
+    <phrase title="option_group_bdPushover_description" version_id="1" version_string="0.9-dev"><![CDATA[]]></phrase>
+    <phrase title="permission_general_bdPushover_associate" version_id="6" version_string="2.0.0"><![CDATA[Can Push Notification]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="public">
+      <prefix original_prefix="pushover" class="bdPushover_Route_Prefix_Redirect" build_link="all"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="bdpushover_account_external_accounts" version_id="9" version_string="2.0.0b"><![CDATA[<xen:if is="{xen:helper bdPushover_canAssociate}">
+	<form action="{xen:link account/external-accounts/disassociate}" method="post" class="xenForm">
+		<h3 class="textHeading">{xen:phrase bdpushover_pushover_integration}</h3>
+		<xen:if is="{$external.bdpushover}">
+			
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase bdpushover_associated_pushover_account}:</dt>
+				<dd>
+					<xen:if is="{$bdPushoverUserKey}">
+						{$bdPushoverUserKey} ({xen:phrase bdpushover_user_key}, <a href="{xen:link register/pushover}">{xen:phrase bdpushover_change_lower}</a>)
+					<xen:elseif is="{$bdPushoverGroupKey}" />
+						{$bdPushoverGroupKey} ({xen:phrase bdpushover_group_key}, <a href="{xen:link register/pushover}">{xen:phrase bdpushover_change_lower}</a>)
+					<xen:else />
+						{xen:phrase unknown_account} (<a href="{xen:link register/pushover}">{xen:phrase bdpushover_change_lower}</a>)
+					</xen:if>
+				</dd>
+			</dl>
+
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase bdpushover_device}:</dt>
+				<dd>
+					<xen:if is="{$bdPushoverDevice}">
+						{$bdPushoverDevice}
+					<xen:else />
+						{xen:phrase bdpushover_device_all}
+					</xen:if>
+				</dd>
+			</dl>
+
+			<xen:if is="{$bdPushoverSound}">
+				<dl class="ctrlUnit">
+					<dt>{xen:phrase bdpushover_sound}:</dt>
+					<dd>
+						{$bdPushoverSound}
+					</dd>
+				</dl>
+			</xen:if>
+
+			<xen:if is="{$bdPushoverPriorities}">
+				<dl class="ctrlUnit">
+					<dt>{xen:phrase bdpushover_priorities}:</dt>
+					<dd>
+						<ul>
+							<xen:foreach loop="$bdPushoverPriorities" key="$priority" value="$contentNames">
+								<li>
+									<xen:if is="{$priority} == 'disabled'">
+										{xen:phrase bdpushover_priority_disabled}:
+									<xen:elseif is="{$priority} == 'low'" />
+										{xen:phrase bdpushover_priority_low}:
+									<xen:elseif is="{$priority} == 'high'" />
+										{xen:phrase bdpushover_priority_high}:
+									<xen:elseif is="{$priority} == 'emergency'" />
+										{xen:phrase bdpushover_priority_emergency}:
+									<xen:else />
+										{xen:phrase bdpushover_priority_normal}:
+									</xen:if>
+									
+									<xen:foreach loop="$contentNames" value="$contentName">
+										{xen:raw $contentName}
+									</xen:foreach>
+								</li>
+							</xen:foreach>
+						</ul>
+					</dd>
+				</dl>
+			</xen:if>
+
+			<dl class="ctrlUnit submitUnit">
+				<dt></dt>
+				<dd><ul>
+					<li>
+						<label><input type="checkbox" name="disassociate" value="1" id="ctrl_disassociate_bdpushover" class="Disabler" /> {xen:phrase bdpushover_disassociate_pushover_account}</label>
+						<ul id="ctrl_disassociate_bdpushover_Disabler">
+							<li><input type="submit" class="button" value="{xen:phrase confirm_disassociation}" /></li>
+						</ul>
+					</li>
+				</ul></dd>
+			</dl>
+		<xen:else />
+			<dl class="ctrlUnit">
+				<dt></dt>
+				<dd>{xen:string nl2br, {xen:phrase bdpushover_your_account_is_not_currently_associated_with_pushover_account}}</dd>
+			</dl>
+			
+			<dl class="ctrlUnit submitUnit">
+				<dt></dt>
+				<dd><a href="{xen:link register/pushover}" class="button primary">{xen:phrase bdpushover_associate_with_pushover}</a></dd>
+			</dl>
+		</xen:if>
+
+		<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+		<input type="hidden" name="_xfConfirm" value="1" />
+		<input type="hidden" name="account" value="bdpushover" />
+	</form>
+</xen:if>
+
+<xen:if is="{xen:helper bdPushover_canAssociate, pushbullet}">
+	<form action="{xen:link account/external-accounts/disassociate}" method="post" class="xenForm">
+		<h3 class="textHeading">{xen:phrase bdpushover_pushbullet_integration}</h3>
+		<xen:if is="{$external.bdpushover_pushbullet}">
+			
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase bdpushover_associated_pushbullet_account}:</dt>
+				<dd>
+					{$bdPushoverPushbullet.pushbullet_email}
+					(<a href="{xen:link register/pushbullet}">{xen:phrase bdpushover_change_lower}</a>)
+				</dd>
+			</dl>
+
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase bdpushover_device}:</dt>
+				<dd>
+					<xen:if is="{$bdPushoverPushbullet.deviceInfo}">
+						{$bdPushoverPushbullet.deviceInfo.nickname}
+					<xen:else />
+						{xen:phrase bdpushover_device_all}
+					</xen:if>
+				</dd>
+			</dl>
+
+			<xen:if hascontent="true">
+				<dl class="ctrlUnit">
+					<dt>&nbsp;</dt>
+					<dd>
+						<p>{xen:phrase bdpushover_push_disabled_for}...</p>
+						<div class="baseHtml">
+						<ul>
+							<xen:contentcheck>
+								<xen:foreach loop="$bdPushoverContentTypes" key="$contentType" value="$contentName">
+									<xen:if is="{$bdPushoverPushbullet.contents.{$contentType}} == 'disabled'">
+									<li>
+										{xen:raw $contentName}
+									</li>
+									</xen:if>
+								</xen:foreach>
+							</xen:contentcheck>
+						</ul>
+						</div>
+					</dd>
+				</dl>
+			</xen:if>
+
+			<dl class="ctrlUnit submitUnit">
+				<dt></dt>
+				<dd><ul>
+					<li>
+						<label><input type="checkbox" name="disassociate" value="1" id="ctrl_disassociate_bdpushover_pushbullet" class="Disabler" /> {xen:phrase bdpushover_disassociate_pushbullet_account}</label>
+						<ul id="ctrl_disassociate_bdpushover_pushbullet_Disabler">
+							<li><input type="submit" class="button" value="{xen:phrase confirm_disassociation}" /></li>
+						</ul>
+					</li>
+				</ul></dd>
+			</dl>
+		<xen:else />
+			<dl class="ctrlUnit">
+				<dt></dt>
+				<dd>{xen:string nl2br, {xen:phrase bdpushover_your_account_is_not_currently_associated_with_pushbullet_account}}</dd>
+			</dl>
+			
+			<dl class="ctrlUnit submitUnit">
+				<dt></dt>
+				<dd><a href="{xen:link register/pushbullet, '', 'reg=1'}" class="button primary">{xen:phrase bdpushover_associate_with_pushbullet}</a></dd>
+			</dl>
+		</xen:if>
+
+		<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+		<input type="hidden" name="_xfConfirm" value="1" />
+		<input type="hidden" name="account" value="bdpushover_pushbullet" />
+	</form>
+</xen:if>]]></template>
+    <template title="bdpushover_register_pushbullet" version_id="9" version_string="2.0.0b"><![CDATA[<xen:title>{xen:phrase bdpushover_associate_with_pushbullet}</xen:title>
+
+<form action="{xen:link 'register/pushbullet'}" method="post" class="xenForm formOverlay AutoValidator" data-redirect="yes">
+
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase bdpushover_pushbullet_account}</dt>
+		<dd>{$pushbulletEmail}</dd>
+	</dl>
+
+	<xen:if is="{$devices}">
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_device">{xen:phrase bdpushover_device}:</label></dt>
+			<dd>
+				<select id="ctrl_device" name="device" class="textCtrl">
+					<option value="" {xen:selected '!{$existingExtraData.device}'}>{xen:phrase bdpushover_device_all}</option>
+					<xen:foreach loop="$devices" value="$device">
+						<option value="{$device.iden}" {xen:selected '{$device.iden} == {$existingExtraData.device}'}>{$device.nickname}</option>
+					</xen:foreach>
+				</select>
+				<p class="explain">{xen:phrase bdpushover_device_select_explain,
+					'all={xen:phrase bdpushover_device_all}',
+					'boardTitle={$xenOptions.boardTitle}'}</p>
+			</dd>
+		</dl>
+	</xen:if>
+
+	<xen:if hascontent="true">
+		<dl class="ctrlUnit">
+			<dt>&nbsp;</dt>
+			<dd>
+				{xen:phrase bdpushover_pushbullet_contents_explain, 'no={xen:phrase no}'}
+			</dd>
+		</dl>
+
+		<xen:contentcheck>
+			<xen:foreach loop="$contentTypes" key="$contentType" value="$contentName">
+				<dl class="ctrlUnit">
+					<dt><label for="ctrl_contents_{$contentType}">{$contentName}:</label></dt>
+					<dd>
+						<label>
+							<input type="radio" name="contents[{$contentType}]" value="" {xen:checked '{$existingExtraData.contents.{$contentType}} != "disabled"'} />
+							{xen:phrase yes}
+						</label>
+						<label>
+							<input type="radio" name="contents[{$contentType}]" value="disabled" {xen:checked '{$existingExtraData.contents.{$contentType}} == "disabled"'} />
+							{xen:phrase no}
+						</label>
+					</dd>
+				</dl>
+			</xen:foreach>
+		</xen:contentcheck>
+	</xen:if>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd>
+			<input type="submit" value="{xen:phrase save}" accesskey="s" class="button primary" />
+		</dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+	<input type="hidden" name="access_token" value="{$accessToken}" />
+	<input type="hidden" name="pushbullet_email" value="{$pushbulletEmail}" />
+</form>]]></template>
+    <template title="bdpushover_register_pushover" version_id="4" version_string="1.0.2"><![CDATA[<xen:title>{xen:phrase bdpushover_associate_with_pushover}</xen:title>
+
+<form action="{xen:link 'register/pushover'}" method="post" class="xenForm formOverlay AutoValidator" data-redirect="yes">
+
+	<ul class="tabs Tabs" data-panes="#Tabs > li">
+		<li><a href="{$requestPaths.fullUri}#key-and-device">{xen:phrase bdpushover_key_and_device}</a></li>
+		<li><a href="{$requestPaths.fullUri}#advanced-options">{xen:phrase advanced_options}</a></li>
+	</ul>
+
+	<ul id="Tabs">
+		<li id="key-and-device">
+
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_user_key">{xen:phrase bdpushover_user_key}:</label></dt>
+		<dd>
+			<input type="text" name="user_key" value="{xen:if '{$existingAssoc}', $existingAssoc.provider_key}" class="textCtrl" id="ctrl_user_key" autofocus="true" autocomplete="off" />
+			<p class="explain">{xen:phrase bdpushover_user_key_explain}</p>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_device">{xen:phrase bdpushover_device}:</label></dt>
+		<dd>
+			<xen:if is="{$existingAssocValidated.devices}">
+				<select id="ctrl_device" name="device" class="textCtrl">
+					<option value="" {xen:selected '!{$existingAssoc.extraData.device}'}>{xen:phrase bdpushover_device_all}</option>
+					<xen:foreach loop="$existingAssocValidated.devices" value="$device">
+						<option value="{$device}" {xen:selected '{$device} == {$existingAssoc.extraData.device}'}>{$device}</option>
+					</xen:foreach>
+				</select>
+				<p class="explain">{xen:phrase bdpushover_device_select_explain,
+					'all={xen:phrase bdpushover_device_all}',
+					'boardTitle={$xenOptions.boardTitle}'}</p>
+			<xen:else />
+				<input type="text" name="device" value="" class="textCtrl" id="ctrl_device" />
+				<p class="explain">{xen:phrase bdpushover_device_explain, 'boardTitle={$xenOptions.boardTitle}'}</p>
+			</xen:if>
+		</dd>
+	</dl>
+
+		</li>
+
+		<li id="advanced-options">
+			
+			<dl class="ctrlUnit">
+				<dt><label for="ctrl_sound">{xen:phrase bdpushover_sound}:</label></dt>
+				<dd>
+					<select name="sound" class="textCtrl">
+						<option value="" {xen:selected '!{$existingAssoc.extraData.sound}'}>{xen:phrase bdpushover_sound_default}</option>
+						<xen:foreach loop="$sounds" key="$soundCode" value="$soundName">
+							<option value="{$soundCode}" {xen:selected '{$soundCode} == {$existingAssoc.extraData.sound}'}>{$soundName}</option>
+						</xen:foreach>
+					</select>
+					<p class="explain">{xen:phrase bdpushover_sound_explain,
+						'default={xen:phrase bdpushover_sound_default}',
+						'none={$sounds.none}',
+						'boardTitle={$xenOptions.boardTitle}'}</p>
+				</dd>
+			</dl>
+
+			<xen:if hascontent="true">
+				<dl class="ctrlUnit">
+					<dt></dt>
+					<dd>
+						<label for="ctrl_priority_enable">
+							<input type="checkbox" name="priority_enable" value="1" id="ctrl_priority_enable"
+								   class="Disabler Hider"
+								   {xen:checked '{$existingAssoc.extraData.priority}'} />
+							{xen:phrase bdpushover_setup_content_priorities}
+						</label>
+						<p class="explain">{xen:phrase bdpushover_priority_explain,
+							'disabled={xen:phrase bdpushover_priority_disabled}',
+							'low_priority={xen:phrase bdpushover_priority_low}',
+							'normal_priority={xen:phrase bdpushover_priority_normal}',
+							'high_priority={xen:phrase bdpushover_priority_high}',
+							'emergency_priority={xen:phrase bdpushover_priority_emergency}',
+							'boardTitle={$xenOptions.boardTitle}'}</p>
+					</dd>
+				</dl>
+				<div id="ctrl_priority_enable_Disabler">
+					<xen:contentcheck>
+						<xen:foreach loop="$contentTypes" key="$contentType" value="$contentName">
+							<dl class="ctrlUnit">
+								<dt><label for="ctrl_priority_{$contentType}">{$contentName}:</label></dt>
+								<dd>
+									<select name="priority[{$contentType}]" class="textCtrl">
+										<option value="disabled" {xen:selected '{$existingAssoc.extraData.priority.{$contentType}} == "disabled"'}>{xen:phrase bdpushover_priority_disabled}</option>
+										<option value="low" {xen:selected '{$existingAssoc.extraData.priority.{$contentType}} == "low"'}>{xen:phrase bdpushover_priority_low}</option>
+										<option value="normal" {xen:selected '!{$existingAssoc.extraData.priority.{$contentType}} OR {$existingAssoc.extraData.priority.{$contentType}} == "normal"'}>{xen:phrase bdpushover_priority_normal}</option>
+										<option value="high" {xen:selected '{$existingAssoc.extraData.priority.{$contentType}} == "high"'}>{xen:phrase bdpushover_priority_high}</option>
+										<option value="emergency" {xen:selected '{$existingAssoc.extraData.priority.{$contentType}} == "emergency"'}>{xen:phrase bdpushover_priority_emergency}</option>
+									</select>
+								</dd>
+							</dl>
+						</xen:foreach>
+					</xen:contentcheck>
+				</div>
+			</xen:if>
+
+		</li>
+	</ul>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd>
+			<input type="submit" value="{xen:phrase save}" accesskey="s" class="button primary" />
+		</dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
+    <template title="bdpushover_title_for_alert" version_id="2" version_string="1.0.0"><![CDATA[{xen:phrase bdpushover_alert_from_x, 'boardTitle={$xenOptions.boardTitle}'}]]></template>
+    <template title="bdpushover_url_title" version_id="1" version_string="0.9-dev"><![CDATA[{xen:phrase bdpushover_view_content_x, 'content={$content}'}]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="account_external_accounts" modification_key="bdpushover_account_external_accounts" description="Insert Pushover form." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#.+#s]]></find>
+      <replace><![CDATA[$0
+
+<xen:include template="bdpushover_account_external_accounts" />]]></replace>
+    </modification>
+    <modification template="account_wrapper" modification_key="bdpushover_account_wrapper" description="Alter conditions for external-accounts link" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:if is="{$xenOptions.facebookAppId}]]></find>
+      <replace><![CDATA[$0 OR {xen:helper bdPushover_canAssociate} OR {xen:helper bdPushover_canAssociate, pushbullet}]]></replace>
+    </modification>
+    <modification template="navigation_visitor_tab" modification_key="bdpushover_navigation_visitor_tab" description="Alter conditions for external-accounts link" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:if is="{$xenOptions.facebookAppId}]]></find>
+      <replace><![CDATA[$0 OR {xen:helper bdPushover_canAssociate} OR {xen:helper bdPushover_canAssociate, pushbullet}]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

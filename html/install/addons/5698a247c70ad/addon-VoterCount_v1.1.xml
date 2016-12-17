@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="VoterCount" title="Voter Count" version_string="1.1" version_id="1" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="Andy_VoterCount_Listener" callback_method="Thread" active="1" hint="XenForo_ControllerPublic_Thread" description="Voter Count load_class_controller"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="votercount_voter_count" version_id="1" version_string="1.0"><![CDATA[Voter count]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications>
+    <modification template="poll_block" modification_key="VoterCount_poll_block" description="VoterCount_poll_block" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:require css="polls.css" />]]></find>
+      <replace><![CDATA[{xen:phrase votercount_voter_count}: {$voterCount}
+$0]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

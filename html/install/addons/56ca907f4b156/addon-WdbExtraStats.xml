@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="WdbExtraStats" title="WDB Extra Stats" version_string="1.0" version_id="0" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation>
+    <navigation navigation_id="WdbExtraStats" parent_navigation_id="stats" display_order="10000" link="extra-stats" admin_permission_id="viewStatistics" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="wdb_extrastats_index"><![CDATA[<xen:require css="wdb_extrastats_index.css" />
+<xen:title>Extra Statistics</xen:title>
+<div class="extra_stats">
+<xen:foreach loop="$queries" value="$query">
+	<p> 
+		<a class='<xen:if is="{$id}"><xen:if is="{$query.id}=={$id}">selected</xen:if></xen:if>' href="{xen:adminlink 'extra-stats','','id={$query.id}'}">{$query.title}</a>
+	</p>
+</xen:foreach>
+<br />
+<xen:if is="{$data}">
+<table class="dataTable">
+	<tr class="dataRow">
+		<xen:foreach loop="$cols" value="$col">
+			<th class="{$col}">{$col}</th>
+		</xen:foreach>
+	</tr>
+	<xen:foreach loop="$data" value="$row">
+		<tr class="dataRow">
+		<xen:foreach loop="$row" key="$key" value="$cell">
+			<xen:if is="{$key}=='count'">
+				<td>
+					<div class="bar" style="width:{$cell.width}%;">
+					</div>
+					<div class="value">
+						{$cell.value} ({$cell.percent}%)
+					</div>
+				</td>
+			<xen:else />
+				<td>{$cell}</td>
+			</xen:if>
+		</xen:foreach>
+		</tr>
+	</xen:foreach>
+</table>
+</xen:if>
+</div>]]></template>
+    <template title="wdb_extrastats_index.css"><![CDATA[.extra_stats a.selected
+{
+	font-weight: bold;
+}
+
+.extra_stats th.count
+{
+	min-width: 135px;
+}
+
+.extra_stats div.bar
+{
+	background:{xen:property primaryLighter};
+	height: 17px;
+	float: left;
+}
+.extra_stats div.value
+{
+	position: absolute;
+	padding-left: 2px;
+}]]></template>
+  </admin_templates>
+  <code_events/>
+  <code_event_listeners/>
+  <cron/>
+  <email_templates/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="admin_navigation_WdbExtraStats" version_id="0" version_string="1.0"><![CDATA[Extra Statistics]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="extra-stats" class="WdbExtraStats_Route_PrefixAdmin_Stats" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates/>
+  <bb_code_media_sites/>
+  <template_modifications/>
+</addon>

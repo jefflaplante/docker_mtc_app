@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.1" version_id="1030170" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+  <admin_navigation>
+    <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="UpdateCheck" parent_navigation_id="addOns" display_order="200" link="add-ons/update-check" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="addon_rebuild_caches" parent_navigation_id="addOns" display_order="150" link="add-ons/rebuild-caches" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="addon_install_auto"><![CDATA[<xen:require css="addon_install_auto.css" />
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+<xen:require js="js/sortable/jquery.sortable.min.js" />
+
+<xen:title>{xen:phrase install_upgrade}</xen:title>
+
+<xen:form action="{xen:adminlink 'add-ons/step-upload'}" upload="true" class="addOnInstallUpgrade">
+	
+	<xen:if is="{$addons}">
+		<div class="dimmed">
+			<xen:if is="{$addonbatch.is_completed}">
+				{xen:phrase following_add_ons_installed_successfully_using_x_method_by_y_on_z, 'deploymentMethod={$addonbatch.deploymentMethod}', 'name={$addonbatch.username}', 'date={xen:date $addonbatch.install_date}'}:
+			<xen:else />
+				{xen:phrase following_add_ons_waiting_to_be_installed_or_upgraded}<br />
+				<br />
+				{xen:phrase click_to_continue_with_the_installation}				
+			</xen:if>
+		</div>
+		
+		<div class="batchList">
+			<div class="subHeading">
+				<xen:include template="filter_list_controls" />
+				{xen:phrase add_ons_to_install_or_upgrade}
+			</div>
+			
+			<ol class="FilterList Scrollable {xen:if '!{$addonbatch.is_completed}', 'Sortable'}" data-sort-url="{xen:adminlink 'add-ons/install-order', '', 'addon_install_batch_id={$addonbatch.addon_install_batch_id}'}">
+				<xen:foreach loop="$addons" value="$addon">
+					<xen:listitem
+						class="listItem"
+						id="{$addon.addon_install_batch_entry_id}"
+						data-item-id="{$addon.addon_install_batch_entry_id}"
+						label="{$addon.original_filename}"
+						snippet="{$addon.addon_id} {xen:if {$addon.version_string}, "({xen:phrase version}: {$addon.version_string})"} {xen:if {$addon.in_error}, "| {xen:phrase addon_error}"}"
+						delete="{xen:if '!{$addonbatch.is_completed}',{xen:adminlink 'add-ons/delete-addon-upgrade-entry', '', 'addon_install_batch_entry_id={$addon.addon_install_batch_entry_id}'}}"
+						deletehint="{xen:if '!{$addonbatch.is_completed}', {xen:phrase remove_pending_upgrade_or_install}}"
+						linkclass="OverlayTrigger">
+					</xen:listitem>
+				</xen:foreach>
+			</ol>
+			<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $addons}</span>', 'total={xen:count $addons}'}</p>
+		</div>
+	</xen:if>
+	
+	<xen:if is="!{$addonbatch.is_completed}">
+		<xen:controlunit label="{xen:phrase addoninstaller_deployment_method}:">
+			<xen:select name="deployment_method" value="{$addonbatch.deploy_method}">
+				<xen:foreach loop="$deploymentMethods" key="$key" value="$method">
+					<xen:option value="{$key}" selected="{$key}=={$addonbatch.deploy_method}">{$method}</xen:option>
+				</xen:foreach>
+			</xen:select>
+			<p class="explain">{xen:phrase pick_deployment_method_from_list_above}</p>
+		</xen:controlunit>
+	</xen:if>
+	
+	<xen:if is="!{$addonbatch.is_completed}">
+	
+		<ul class="Tabs tabs" data-panes=".installPanes > li">
+			<li><a href="{$requestPaths.requestUri}#file">{xen:phrase install_upgrade_from_zip_or_xml}</a></li>
+			<li><a href="{$requestPaths.requestUri}#rm">{xen:phrase install_upgrade_from_resource_manager}</a></li>
+		</ul>
+		
+		<ul class="installPanes">
+			<li id="file">
+				<xen:controlunit label="{xen:phrase install_from_uploaded_file}/s:">
+					<input type="file" name="upload_file[]" value="" id="ctrl_upload_file" multiple="multiple" accept=".zip,.xml" class="textCtrl">
+					<p class="explain">{xen:phrase browse_for_one_or_more_xml_or_zip_files_to_install_upgrade_from}</p>
+				</xen:controlunit>
+				
+				<xen:textboxunit label="{xen:phrase install_from_file_on_server}:" name="server_file">
+					<xen:explain>{xen:phrase type_path_of_single_xml_or_zip_file_to_install_upgrade_from}</xen:explain>
+				</xen:textboxunit>
+			</li>
+			<li id="rm">
+				<xen:textboxunit label="{xen:phrase install_from_file_on_resource_manager}:" name="resource_url" explain="{xen:phrase resource_url_must_be_this_format}" />
+			
+				<xen:include template="addon_install_rm_login" />
+			</li>
+		</ul>
+		
+		<dl class="ctrlUnit submitUnit">
+			<dt></dt>
+			<dd>
+				<ul>
+					<li>
+						<xen:checkbox>
+							<xen:option name="_xfConfirm" selected="0">{xen:phrase addon_start_install}</xen:option>
+						</xen:checkbox>
+						<ul>
+							<li>
+								<input type="submit" id="submitButton" value="{xen:phrase add_to_batch}..." data-install="Start Install & Upgrade" data-add="Add to Batch..." class="button primary" accesskey="s">
+							</li>
+						</ul>
+					</li>
+				</ul>
+			<dd>
+		</dl>
+		
+		<xen:if is="{$addon_install_batch_id}">
+			<input type="hidden" name="addon_install_batch_id" value="{$addon_install_batch_id}" />
+		</xen:if>
+	</xen:if>
+	
+	<xen:if is="{$addonbatch.is_completed}">
+		<a href="{xen:adminlink 'add-ons/install-upgrade'}" class="button">
+			{xen:phrase start_new_install_upgrade_batch}
+		</a>
+	</xen:if>
+	
+</xen:form>
+
+<script>
+	var $checkbox = $('#ctrl__xfConfirm_1'),
+	    $button = $('#submitButton');
+	    
+	$checkbox.bind('change', function()
+	{
+		if ($checkbox.is(":checked"))
+		{
+			$button.val($button.data('install'));
+		}
+		else
+		{
+			$button.val($button.data('add'));
+		}
+	});
+</script>]]></template>
+    <template title="addon_install_auto.css"><![CDATA[	.FilterList .allow
+	{
+		padding: 0px!important;
+		width: 30px;
+		height: 30px;
+	}
+	
+		.FilterList.secondRow .allow
+		{
+			height: 44px;
+		}
+			
+		.FilterList .allow span
+		{
+			display: block;
+			background: transparent url('styles/default/xenforo/permissions/allow.png') no-repeat center center;
+		
+			padding: 5px;
+			width: 20px;
+			height: 20px;
+			
+			overflow: hidden;
+			white-space: nowrap;
+			text-indent: -1000px;
+		}
+		
+			.FilterList.secondRow .allow span
+			{
+				height: 34px;
+			}
+
+	.FilterList .auto
+	{
+		padding: 0px!important;
+		width: 30px;
+		height: 30px;
+	}
+	
+		.FilterList.secondRow .auto
+		{
+			height: 44px;
+		}
+			
+		.FilterList .auto span
+		{
+			display: block;
+			background: transparent url('styles/AddOnInstaller/auto.png') no-repeat center center;
+		
+			padding: 5px;
+			width: 20px;
+			height: 20px;
+			
+			overflow: hidden;
+			white-space: nowrap;
+			text-indent: -1000px;
+		}
+		
+			.FilterList.secondRow .auto span
+			{
+				height: 34px;
+			}
+
+	.FilterList .check
+	{
+		padding: 0px!important;
+		width: 30px;
+		height: 30px;
+	}
+	
+		.FilterList.secondRow .check
+		{
+			height: 44px;
+		}
+			
+		.FilterList .check span
+		{
+			display: block;
+			background: transparent url('styles/AddOnInstaller/check.png') no-repeat center center;
+		
+			padding: 5px;
+			width: 20px;
+			height: 20px;
+			
+			overflow: hidden;
+			white-space: nowrap;
+			text-indent: -1000px;
+		}
+		
+			.FilterList.secondRow .check span
+			{
+				height: 34px;
+			}
+
+		.FilterList .delete span
+		{
+			cursor: default!important;
+		}
+
+.addOnInstallUpgrade .batchList
+{
+	margin: 15px 0;
+}]]></template>
+    <template title="addon_install_log"><![CDATA[<xen:require css="addon_install_auto.css" />
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<h2 class="subHeading">
+	<xen:include template="filter_list_controls" />
+	{xen:phrase addon_install_log}
+</h2>
+
+<ol class="FilterList Scrollable">
+	<xen:foreach loop="$addons" value="$addon">
+		<xen:listitem
+			id="{$addon.addon_install_batch_id}"
+			label="{$addon.original_filename} {xen:phrase addon_installed_by_x_on_y, 'name={$addon.username}', 'date={xen:date $addon.install_date, 'absolute'}'}"
+			snippet="{$addon.addon_id} {xen:if {$addon.version_string}, "({xen:phrase version}: {$addon.version_string})"} {xen:if {$addon.in_error}, "| {xen:phrase addon_error}"}"
+			href="{xen:adminlink 'add-ons/install-upgrade', '', 'addon_install_batch_id={$addon.addon_install_batch_id}'}"
+			>
+			<xen:html>
+			</xen:html>
+		</xen:listitem>
+	</xen:foreach>
+</ol>
+
+<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $addons}</span>', 'total={xen:count $addons}'}</p>]]></template>
+    <template title="addon_install_rm_login"><![CDATA[<xen:if is="!{$xenOptions.xenforoRmLoginUsername} && !{$xenOptions.xenforoRmLoginPassword}">
+	<xen:textboxunit label="{xen:phrase xenforo_username}:" name="login" />
+	<xen:textboxunit label="{xen:phrase xenforo_password}:" name="password" type="password" />
+	
+	<xen:controlunit label="">
+		<label for="ctrl_cred_save">
+			<input type="checkbox" id="ctrl_cred_save" name="cred_save" value="1" /> {xen:phrase remember_me}
+		</label>
+		<p class="explain">{xen:phrase rm_username_password_save_explain}</p>
+	</xen:controlunit>
+<xen:else />
+	<xen:controlunit label="{xen:phrase xenforo_username}:">
+		<span>{$xenOptions.xenforoRmLoginUsername}</span>
+	</xen:controlunit>
+
+	<xen:controlunit label="{xen:phrase xenforo_password}:">
+		<span>{xen:string repeat, '&#149;', '{xen:helper strlen, $xenOptions.xenforoRmLoginPassword}'}</span>
+		<p class="explain">{xen:phrase rm_username_password_saved_explain}</p>
+	</xen:controlunit>
+</xen:if>]]></template>
+    <template title="addon_install_update_check"><![CDATA[<xen:require css="addon_install_update_check.css" />
+
+<div class="section">
+	<h3 class="subHeading">{xen:phrase update_check}: <a href="{xen:adminlink add-ons/edit, $addOn}" target="_blank">{$addOn.title}</a></h3>
+	
+	<div class="overlayScroll primaryContent">
+		<xen:if is="{$updateData.update} AND !{$skipUpdate}">
+			<form class="xenForm" action="{xen:adminlink add-ons/step-upload}" method="post" data-redirect="on">
+				<h2>{xen:phrase most_recent_update, 'title={$updateData.updateTitle}', 'version={$updateData.updateVersion}'}</h2>
+				{xen:raw $updateData.updateText}
+
+				<fieldset>
+					<xen:include template="addon_install_rm_login" />
+
+					<xen:controlunit label="">
+						{xen:phrase install_update_explain, 'url={$updateData.resourceUrl}'}
+					</xen:controlunit>
+				</fieldset>
+
+				<xen:submitunit save="{xen:phrase install_this_update}">
+					<a href="{xen:adminlink 'add-ons/update-skip', $addOn}" class="button OverlayTrigger">{xen:phrase skip_this_update}</a>
+				</xen:submitunit>
+
+				<input type="hidden" name="resource_url" value="{$updateData.resourceUrl}" />
+				<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+				<input type="hidden" name="_xfConfirm" value="{xen:if {$xenOptions.addoninstaller_update_confirmsbatch}, '1', '0'}" />
+			</form>
+		<xen:else />
+			{xen:phrase addon_fully_up_to_date}
+		</xen:if>
+	</div>
+	
+	<div class="sectionFooter"><input type="button" class="button OverlayOnly OverlayCloser" value="{xen:phrase close}" /></div>
+</div>]]></template>
+    <template title="addon_install_update_check.css"><![CDATA[.primaryContent h2
+{
+	color: #6cb2e4;
+	font-size: 12pt;
+	font-weight: bold;
+	font-family: 'Trebuchet MS',Helvetica,Arial,sans-serif;
+	padding-bottom: 30px;
+}
+
+.primaryContent .messageText
+{
+	font-size: 11pt;
+	font-family: Georgia,"Times New Roman",Times,serif;
+	line-height: 1.4;
+}]]></template>
+    <template title="addon_install_update_edit"><![CDATA[<xen:title>{xen:phrase configure_addon_update}: {$addOn.title}</xen:title>
+
+
+
+<xen:form action="{xen:adminlink 'add-ons/update-save', $addOn}" class="AutoValidator .addon_install_update_edit" data-redirect="true">
+
+	<xen:textboxunit label="{xen:phrase update_url_resource_manager}:" name="update_url" value="{$addOn.update_url}" explain="{xen:phrase update_url_resource_manager_explain}" />
+
+	<xen:controlunit label="{xen:phrase update_settings}:">
+
+		<ul>
+			<li>
+				<label for="ctrl_check_updates">
+					<input type="checkbox" name="check_updates" class="Disabler" value="1" id="ctrl_check_updates" {xen:checked {$addOn.check_updates}} /> {xen:phrase check_updates_automatically}
+				</label>
+			</li>
+		</ul>
+
+	</xen:controlunit>
+
+	<xen:submitunit save="{xen:phrase save_update_settings}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+
+</xen:form>]]></template>
+    <template title="addon_install_update_list"><![CDATA[<xen:title>{xen:phrase update_check}</xen:title>
+
+<xen:require css="addon_install_auto.css" />
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'add-ons/update-check-all'}" class="button">+ {xen:phrase check_for_updates_now}</a>
+</xen:topctrl>
+
+<xen:form action="{xen:adminlink events/toggle}" class="section AutoValidator"> 
+
+<h2 class="subHeading">
+	<xen:include template="filter_list_controls" />
+	{xen:phrase add_ons}
+</h2>
+
+<ol class="FilterList Scrollable">
+	<xen:foreach loop="$addOns" value="$addOn">
+		<xen:set var="{$lastCheck}">
+			<xen:if is="{$addOn.last_checked}">
+				<xen:datetime time="{$addOn.last_checked}" />
+			<xen:else />
+				{xen:phrase never}
+			</xen:if>
+		</xen:set>
+		<xen:listitem
+			id="{$addOn.addon_id}"
+			label="{$addOn.title}"
+			snippet="{$addOn.addon_id} ({xen:phrase version}: {$addOn.version_string}) | {xen:phrase last_check}: {xen:raw $lastCheck}"
+			href="{xen:if '{$addOn.update_url}', '{xen:adminlink 'add-ons/update-edit', $addOn}', '{xen:adminlink 'add-ons/update-add', $addOn}'}"
+			linkclass="OverlayTrigger">
+			<xen:html>
+				<a href="{xen:if '{$addOn.update_url}', '{xen:adminlink 'add-ons/update-edit', $addOn}', '{xen:adminlink 'add-ons/update-add', $addOn}'}" class="secondaryContent OverlayTrigger">{xen:phrase settings}</a>
+				<xen:if is="{$addOn.update_url} && {$addOn.last_checked} && {$addOn.latest_version} && {$addOn.latest_version} != {$addOn.version_string} && {$addOn.latest_version} != {$addOn.skip_version}">
+					<a href="{xen:adminlink add-ons/update-check, $addOn}" class="secondaryContent OverlayTrigger">{xen:phrase upgrade}</a>
+				</xen:if>
+				<xen:if is="{$addOn.update_url} && {$addOn.check_updates}">
+					<span class="allow secondaryContent Tooltip" title="{xen:phrase updates_configured}">
+						<span>{xen:phrase updates_configured}</span>
+					</span>
+				<xen:else />
+					<span class="delete secondaryContent Tooltip" title="{xen:phrase no_updates_configured}">
+						<span>{xen:phrase no_updates_configured}</span>
+					</span>
+				</xen:if>
+				<xen:if is="{$addOn.update_url} && {$addOn.check_updates}">
+					<a href="{xen:adminlink add-ons/update-check, $addOn}" class="check secondaryContent OverlayTrigger" title="{xen:phrase check_for_update_now}">
+						<span>{xen:phrase check_for_update_now}</span>
+					</a>
+				</xen:if>
+			</xen:html>
+		</xen:listitem>
+	</xen:foreach>
+</ol>
+
+<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $addOns}</span>', 'total={xen:count $addOns}'}</p>
+
+</xen:form>]]></template>
+    <template title="addon_rebuild_caches"><![CDATA[<xen:title>{xen:phrase confirm_rebuild_of_add_on_caches}</xen:title>
+<xen:h1>{xen:phrase confirm_rebuild_of_add_on_caches}</xen:h1>
+
+<xen:require css="public:delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'add-ons/rebuild-caches'}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase please_confirm_that_you_want_to_rebuild_add_on_caches}</p>
+
+	<xen:submitunit save="{xen:phrase add_on_rebuild_caches}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="addon_update_skip"><![CDATA[<xen:title>{xen:phrase confirm_skip_current_update}: {$addOn.title} ({xen:phrase version} {$addOn.latest_update})</xen:title>
+<xen:h1>{xen:phrase confirm_skip_update}</xen:h1>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'add-ons/update-skip', $addOn}" class="deleteConfirmForm AutoValidator" data-redirect="on">
+    <p>{xen:phrase please_confirm_you_want_to_skip_update_explain}</p>
+
+    <xen:submitunit save="{xen:phrase skip_this_update}" />
+
+    <input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="option_deployment_select"><![CDATA[<xen:selectunit label="{$preparedOption.title}" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
+hint="{$preparedOption.hint}" inputclass="{$preparedOption.inputClass}">
+	<xen:options source="$formatParams" />
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+	<xen:html>
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+		{xen:raw $editLink}
+	</xen:html>
+</xen:selectunit>]]></template>
+    <template title="option_template_deploymentmethod_ftp"><![CDATA[<xen:controlunit label="{$preparedOption.title}" hint="{$preparedOption.hint}">
+    <xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+    <xen:html>
+        <xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][host]" value="{$preparedOption.option_value.host}" placeholder="{xen:phrase host}" size="40" />
+        :
+        <xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][port]" value="{$preparedOption.option_value.port}" placeholder="{xen:phrase port}" size="5" />
+        <xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][timeout]" value="{$preparedOption.option_value.timeout}" placeholder="{xen:phrase connection_timeout}" size="5" />
+	<xen:checkbox label="">
+		<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][passive]" value="1" selected="{$preparedOption.option_value.passive}" label="{xen:phrase ftp_passive_mode}" />
+	</xen:checkbox>
+        <xen:textbox autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}][username]" value="{$preparedOption.option_value.username}" placeholder="{xen:phrase user_name}" inputclass="Elastic" />
+        <br/>
+        <xen:textbox type="password" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}][password]" value="{$preparedOption.option_value.password}" placeholder="{xen:phrase password}" inputclass="Elastic" />
+        <input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+        {xen:raw $editLink}
+    </xen:html>
+</xen:controlunit>]]></template>
+    <template title="option_template_xenforoRmLoginPassword"><![CDATA[<xen:textboxunit label="{$preparedOption.title}" type="password" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
+hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$formatParams.size}" maxlength="{$formatParams.maxlength}" rows="{$formatParams.rows}" inputclass="Elastic">
+    <xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+    <xen:html>
+        <xen:include template="option_list_option_editlink" />
+        <input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+        {xen:raw $editLink}
+    </xen:html>
+</xen:textboxunit>]]></template>
+    <template title="option_template_xenforoRmLoginUsername"><![CDATA[<xen:textboxunit label="{$preparedOption.title}" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
+hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$formatParams.size}" maxlength="{$formatParams.maxlength}" rows="{$formatParams.rows}" inputclass="Elastic">
+    <xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+    <xen:html>
+        <xen:include template="option_list_option_editlink" />
+        <input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+        {xen:raw $editLink}
+    </xen:html>
+</xen:textboxunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="addon_list" modification_key="addoninstaller_addon_list" description="Update addon list" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[add-ons/install]]></find>
+      <replace><![CDATA[add-ons/install-upgrade]]></replace>
+    </modification>
+    <modification template="sidenav_entry" modification_key="addoninstaller_sidenav_entry" description="Add update check count" execution_order="11" enabled="1" action="preg_replace">
+      <find><![CDATA[#^#]]></find>
+      <replace><![CDATA[<xen:if is="{$link.navigation_id} == 'UpdateCheck'">
+  <xen:if is="{$xenOptions.addoninstaller_check_update}">
+    <xen:set var="$updateCount"><xen:callback class="AddOnInstaller_Listener" method="getAddonInstallerUpdateCount" /></xen:set>
+  <xen:else/>
+    <xen:set var="$updateCount" />
+  </xen:if>
+  <xen:set var="$link.title">{xen:phrase admin_navigation_UpdateCheck, 'updates={$updateCount}'}</xen:set>
+</xen:if>
+$1]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events>
+    <event event_id="addon_deployment"><![CDATA[<p>Called to fetch a list of supported add-on deployment methods.</p>
+
+<p>Callback signature:</p>
+<blockquote><code>&$deployMethods</code></blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>array</em> $deployMethods</code> - an associative array of $methodId-$Class pairs.</li>
+</ol>
+
+<p>To use this event properly, assign <code>$deployMethods[$method] = $class'</code>. Ensure the phrase "deployment_method_$method" exists.<br/>
+This class MUST be defined as follows:</p>
+
+<pre>class My_Class_Name extends AddOnInstaller_Model_Deployment_Abstract
+{
+	// functionality to extend/override
+}</pre>
+
+<p><b>Event Hint:</b> Name of the class that is being loaded.</p>]]></event>
+  </code_events>
+  <code_event_listeners>
+    <listener event_id="addon_deployment" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="addon_deployment" active="1" hint="" description="Adds built-in deployment methods"/>
+    <listener event_id="container_admin_params" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="containerAdminParams" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnController" active="1" hint="XenForo_ControllerAdmin_AddOn" description="XenForo_ControllerAdmin_AddOn"/>
+    <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnDataWriter" active="1" hint="XenForo_DataWriter_AddOn" description="XenForo_DataWriter_AddOn"/>
+    <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" hint="XenForo_Model_AddOn" description="XenForo_Model_AddOn"/>
+    <listener event_id="template_file_change" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="template_file_change" active="1" hint="" description="Ensure opcache invalidation happens."/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[16],"minutes":[52]}]]></entry>
+  </cron>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="addOnInstaller" display_order="21" debug_only="0"/>
+    <group group_id="addOnInstaller_debug" display_order="22" debug_only="1"/>
+    <option option_id="addoninstaller_check_update" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="10"/>
+    </option>
+    <option option_id="addoninstaller_update_confirmsbatch" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="20"/>
+    </option>
+    <option option_id="builtin_deploymentmethods" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>copy,ftp</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller_debug" display_order="10"/>
+    </option>
+    <option option_id="deploymentmethod" edit_format="callback" data_type="string" can_backup="1">
+      <default_value>copy</default_value>
+      <edit_format_params>AddOnInstaller_Option_DeploymentMethodChooser::renderOption</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="700"/>
+    </option>
+    <option option_id="deploymentmethod_ftp" edit_format="template" data_type="array" can_backup="1">
+      <default_value>a:1:{s:7:"passive";i:1;}</default_value>
+      <edit_format_params>option_template_deploymentmethod_ftp</edit_format_params>
+      <sub_options>host
+port
+username
+password
+passive
+timeout</sub_options>
+      <relation group_id="addOnInstaller" display_order="800"/>
+    </option>
+    <option option_id="xenforoRmLoginPassword" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_template_xenforoRmLoginPassword</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="610"/>
+      <relation group_id="serviceProviders" display_order="610"/>
+    </option>
+    <option option_id="xenforoRmLoginUsername" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_template_xenforoRmLoginUsername</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="600"/>
+      <relation group_id="serviceProviders" display_order="600"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="addoninstaller_deployment_method" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Deployment Method]]></phrase>
+    <phrase title="addon_error" version_id="1030000" version_string="1.3.0"><![CDATA[Has errors - Check Server Error logs.]]></phrase>
+    <phrase title="addon_fully_up_to_date" version_id="6" version_string="1.0.0"><![CDATA[Add-on is fully up to date.]]></phrase>
+    <phrase title="addon_installed_by_x_on_y" version_id="1030000" version_string="1.3.0"><![CDATA[- installed by {name} on {date}]]></phrase>
+    <phrase title="addon_installer_option1" version_id="5" version_string="1.0.0"><![CDATA[Option 1: <i>I have downloaded an add-on ZIP (or multiple ZIP files) to my computer</i>.]]></phrase>
+    <phrase title="addon_installer_option2" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 2: <i>I haven't yet downloaded the ZIP file. Get it for me.</i>]]></phrase>
+    <phrase title="addon_installer_option3" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 3: <i>I'm old school. I have uploaded the files myself. Here's an XML file</i>:]]></phrase>
+    <phrase title="addon_install_batch_completed" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on install batch is completed]]></phrase>
+    <phrase title="addon_install_log" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on Install Log]]></phrase>
+    <phrase title="addon_start_install" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm & start installing]]></phrase>
+    <phrase title="addon_update_has_been_skipped" version_id="10" version_string="1.0.0 RC4"><![CDATA[Add-on update has been ignored]]></phrase>
+    <phrase title="add_ons_to_install_or_upgrade" version_id="1030000" version_string="1.3.0"><![CDATA[Add-ons to install or Upgrade]]></phrase>
+    <phrase title="add_on_rebuild_caches" version_id="1030000" version_string="1.3.0"><![CDATA[Rebuild caches]]></phrase>
+    <phrase title="add_to_batch" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Add to Batch]]></phrase>
+    <phrase title="admin_navigation_AddonInstallLog" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on Install Log]]></phrase>
+    <phrase title="admin_navigation_addon_rebuild_caches" version_id="1030000" version_string="1.3.0"><![CDATA[Rebuild Caches]]></phrase>
+    <phrase title="admin_navigation_InstallUpgrade" version_id="2" version_string="0.2"><![CDATA[Install & Upgrade]]></phrase>
+    <phrase title="admin_navigation_UpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Update Checker {updates}]]></phrase>
+    <phrase title="an_unexpected_error_occurred_while_extracting_addons" version_id="1000470" version_string="1.0.4"><![CDATA[An unexpected error occurred while extracting add-ons. Make sure the install/addons directory exists and is writable. If it is, you may have some other permissions related problems that you should consult your host or server person about.]]></phrase>
+    <phrase title="a_valid_installable_xml_not_found" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[A valid and installable XML file has not been found. You must install manually.]]></phrase>
+    <phrase title="browse_for_one_or_more_xml_or_zip_files_to_install_upgrade_from" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Browse for one or more XML or ZIP files to install/upgrade from.]]></phrase>
+    <phrase title="check_for_updates_now" version_id="9" version_string="1.0.0 RC3"><![CDATA[Check for Updates Now]]></phrase>
+    <phrase title="check_for_update_now" version_id="6" version_string="1.0.0"><![CDATA[Check for Updates Now]]></phrase>
+    <phrase title="check_updates_automatically" version_id="6" version_string="1.0.0"><![CDATA[Check for updates automatically]]></phrase>
+    <phrase title="choose_an_add_on" version_id="1" version_string="0.1"><![CDATA[Choose an add-on]]></phrase>
+    <phrase title="click_to_continue_with_the_installation" version_id="1030070" version_string="1.3.0"><![CDATA[Click "Confirm & start installing" and "Start Install & Upgrade" to continue with the installation.]]></phrase>
+    <phrase title="configure_addon_update" version_id="6" version_string="1.0.0"><![CDATA[Configure Add-on Update]]></phrase>
+    <phrase title="confirm_rebuild_of_add_on_caches" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm rebuild of add-on caches]]></phrase>
+    <phrase title="confirm_skip_current_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Current Update]]></phrase>
+    <phrase title="confirm_skip_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Update]]></phrase>
+    <phrase title="connection_timeout" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Timeout]]></phrase>
+    <phrase title="could_not_create_directory_permissions" version_id="1000470" version_string="1.0.4"><![CDATA[Could not create temporary install directory. Please verify permissions are correct to write to the install/addons directory.]]></phrase>
+    <phrase title="cron_entry_AddOnInstallerUpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Automatic Check for Add-on Updates]]></phrase>
+    <phrase title="deployment_method_copy" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File copy]]></phrase>
+    <phrase title="deployment_method_fakeCopy" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Fake file copy]]></phrase>
+    <phrase title="deployment_method_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP]]></phrase>
+    <phrase title="deployment_method_x_not_implemented" version_id="1030000" version_string="1.3.0 Alpha 4"><![CDATA[Deployment method {method} is not implemented.]]></phrase>
+    <phrase title="following_add_ons_installed_successfully_using_x_method_by_y_on_z" version_id="1030070" version_string="1.3.0"><![CDATA[The following add-ons have been installed successfully using the "{deploymentMethod}" method by {name} on {date}]]></phrase>
+    <phrase title="following_add_ons_waiting_to_be_installed_or_upgraded" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[The following add-ons are waiting to be installed or upgraded.]]></phrase>
+    <phrase title="ftp_passive_mode" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Passive Mode]]></phrase>
+    <phrase title="install_from_file_on_resource_manager" version_id="9" version_string="1.0.0 RC3"><![CDATA[Resource Manager URL]]></phrase>
+    <phrase title="install_or_upgrade" version_id="2" version_string="0.2"><![CDATA[Install or Upgrade]]></phrase>
+    <phrase title="install_this_update" version_id="6" version_string="1.0.0"><![CDATA[Install this Update]]></phrase>
+    <phrase title="install_update_explain" version_id="6" version_string="1.0.0"><![CDATA[<p>The details shown above are taken from the most recent update for this add-on in the Resource Manager.</p>
+<br />
+<p>If you would like to install this update, enter your XenForo username and password and it will be downloaded for you.</p>
+<br />
+<p>You should always check the <a href="{url}">Resource Manager page</a> for the details of other updates.</p>]]></phrase>
+    <phrase title="install_upgrade" version_id="2" version_string="0.2"><![CDATA[Install & Upgrade]]></phrase>
+    <phrase title="install_upgrade_description" version_id="5" version_string="1.0.0"><![CDATA[<p>To install an add-on, please choose one of the options below.</p>
+
+<p>If the add-on is already installed it will be automatically upgraded for you.</p>]]></phrase>
+    <phrase title="install_upgrade_from_resource_manager" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Install/Upgrade from Resource Manager]]></phrase>
+    <phrase title="install_upgrade_from_zip_or_xml" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Install/Upgrade from ZIP or XML]]></phrase>
+    <phrase title="last_check" version_id="6" version_string="1.0.0"><![CDATA[Last Check]]></phrase>
+    <phrase title="login_to_xenforo_has_failed" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Login to XenForo.com has failed. Make sure you login with your XenForo username and password.]]></phrase>
+    <phrase title="most_recent_update" version_id="6" version_string="1.0.0"><![CDATA[Most Recent Update: {title} (version: {version})]]></phrase>
+    <phrase title="no_deployment_method_set" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[No valid deployment method is set.]]></phrase>
+    <phrase title="no_download_url_found_maybe_paid" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[No download URL could be found at the provided Resource Manager URL. Is this a paid add-on?]]></phrase>
+    <phrase title="no_updates_configured" version_id="6" version_string="1.0.0"><![CDATA[No updates are configured for this add-on]]></phrase>
+    <phrase title="no_upload_directory_found" version_id="1" version_string="0.1"><![CDATA[There is no upload directory found within this archive. This add-on does not support the Add-on Installer.]]></phrase>
+    <phrase title="only_resource_manager_urls_are_valid" version_id="9" version_string="1.0.0 RC3"><![CDATA[Only proper Resource Manager URLs are valid]]></phrase>
+    <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Add-on Updates]]></phrase>
+    <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for add-on updates.]]></phrase>
+    <phrase title="option_addoninstaller_update_confirmsbatch" version_id="1030100" version_string="1.3.1"><![CDATA[Update checker auto-confirms batch]]></phrase>
+    <phrase title="option_addoninstaller_update_confirmsbatch_explain" version_id="1030100" version_string="1.3.1"><![CDATA[If set, the install link from updater automatically confirms installing]]></phrase>
+    <phrase title="option_builtin_deploymentmethods" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Built-in add-on deployment methods]]></phrase>
+    <phrase title="option_builtin_deploymentmethods_explain" version_id="1030004" version_string="1.3.0 Alpha4"><![CDATA[A comma delimited list of built-in deployment methods. Supported:
+<ol>
+<li>copy</i>
+<li>fakeCopy</i>
+<li>ftp</i>
+</ol>
+<br/>
+Note; if no deployment methods are enabled, then the 'copy' deployment will be enabled.<br/>
+'fakeCopy' is for testing deployment without copying files.]]></phrase>
+    <phrase title="option_deploymentmethod" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Deployment]]></phrase>
+    <phrase title="option_deploymentmethod_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File deployment configuration]]></phrase>
+    <phrase title="option_deploymentmethod_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP Config]]></phrase>
+    <phrase title="option_deploymentmethod_ftp_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[]]></phrase>
+    <phrase title="option_group_addOnInstaller" version_id="1020000" version_string="1.2.0"><![CDATA[Add-on Installer & Upgrade]]></phrase>
+    <phrase title="option_group_addOnInstaller_debug" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Add-on Installer & Upgrade Debug]]></phrase>
+    <phrase title="option_group_addOnInstaller_debug_description" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[]]></phrase>
+    <phrase title="option_group_addOnInstaller_description" version_id="1020000" version_string="1.2.0"><![CDATA[]]></phrase>
+    <phrase title="option_xenforoRmLoginPassword" version_id="11" version_string="1.0.0 RC5"><![CDATA[XenForo Password]]></phrase>
+    <phrase title="option_xenforoRmLoginPassword_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>
+    <phrase title="option_xenforoRmLoginUsername" version_id="10" version_string="1.0.0 RC4"><![CDATA[XenForo Username]]></phrase>
+    <phrase title="option_xenforoRmLoginUsername_explain" version_id="10" version_string="1.0.0 RC4"><![CDATA[]]></phrase>
+    <phrase title="pick_deployment_method_from_list_above" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Pick a deployment method from the list above then choose where to install/upgrade from below.]]></phrase>
+    <phrase title="please_confirm_that_you_want_to_rebuild_add_on_caches" version_id="1030000" version_string="1.3.0"><![CDATA[Please confirm that you want to rebuild add-on caches. This is a computationally expensive task and may impact board performance.]]></phrase>
+    <phrase title="please_confirm_you_want_to_skip_update_explain" version_id="10" version_string="1.0.0 RC4"><![CDATA[Please confirm below that you want to ignore this current update.
+<br /><br />
+You may want to do this if the developer did not update the add-on XML file with the latest version and you have already installed this update.
+<br /><br />
+You may also want to do this if the current update isn't required.
+<br /><br />
+You will not be asked to update again until a new update has been released on the Resource Manager.]]></phrase>
+    <phrase title="problem_accessing_resource_page" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[There has been a problem accessing the Resource Manager page.]]></phrase>
+    <phrase title="remember_me" version_id="1000470" version_string="1.0.4"><![CDATA[Remember Me]]></phrase>
+    <phrase title="remove_pending_upgrade_or_install" version_id="1030000" version_string="1.3.0"><![CDATA[Remove pending upgrade or install]]></phrase>
+    <phrase title="resource_url_must_be_this_format" version_id="1020000" version_string="1.2.0"><![CDATA[Resource Manager URLs must be in this format: <b>https://xenforo.com/community/resources/resource-name.1234/</b>]]></phrase>
+    <phrase title="rm_username_password_saved_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[You have already saved your XenForo username and password. If you wish to edit this, go to the <a href="admin.php?options/list/serviceProviders">External Service Providers</a> options group.]]></phrase>
+    <phrase title="rm_username_password_save_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[You can click "Remember Me" to save your XenForo username and password in the database. This is done at your own risk. Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>
+    <phrase title="save_update_settings" version_id="6" version_string="1.0.0"><![CDATA[Save Update Settings]]></phrase>
+    <phrase title="skip_this_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Ignore This Update]]></phrase>
+    <phrase title="start_new_install_upgrade_batch" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Start New Install & Upgrade Batch]]></phrase>
+    <phrase title="this_addon_doesnt_require_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[This add-on doesn't require an update]]></phrase>
+    <phrase title="this_addon_has_no_resource_url" version_id="6" version_string="1.0.0"><![CDATA[This add-on has no Resource Manager URL]]></phrase>
+    <phrase title="type_path_of_single_xml_or_zip_file_to_install_upgrade_from" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[Type the path of a single XML or ZIP file to install/upgrade from.]]></phrase>
+    <phrase title="unknown_addon_install_batch" version_id="1030000" version_string="1.3.0"><![CDATA[Unknown add-on install batch.]]></phrase>
+    <phrase title="unknown_addon_install_batch_entry" version_id="1030000" version_string="1.3.0"><![CDATA[Unknown add-on install batch entry.]]></phrase>
+    <phrase title="updates_configured" version_id="6" version_string="1.0.0"><![CDATA[Updates Configured]]></phrase>
+    <phrase title="update_check" version_id="6" version_string="1.0.0"><![CDATA[Update Check]]></phrase>
+    <phrase title="update_url_resource_manager" version_id="6" version_string="1.0.0"><![CDATA[Resource Manager URL]]></phrase>
+    <phrase title="update_url_resource_manager_explain" version_id="6" version_string="1.0.0"><![CDATA[Please enter the Resource Manager URL for this add-on.]]></phrase>
+    <phrase title="uploaded_file_not_a_valid_zip_file" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[The uploaded file is not a valid ZIP file.]]></phrase>
+    <phrase title="xenforo_password" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[XenForo Community Password]]></phrase>
+    <phrase title="xenforo_username" version_id="1030031" version_string="1.3.0 Beta 1"><![CDATA[XenForo Community Username]]></phrase>
+    <phrase title="zip_file_could_not_be_opened" version_id="1" version_string="0.1"><![CDATA[The provided ZIP file could not be opened. Either the file is not a valid archive or some other read error occurred.]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

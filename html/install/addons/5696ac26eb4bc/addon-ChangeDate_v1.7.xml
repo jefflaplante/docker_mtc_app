@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ChangeDate" title="Change Date" version_string="1.7" version_id="1" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="Andy_ChangeDate_Listener" callback_method="Post" active="1" hint="XenForo_ControllerPublic_Post" description="Change Date load_class_controller listener"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="ChangeDate" display_order="4000" debug_only="0"/>
+    <option option_id="changeDateDateFormat" edit_format="radio" data_type="string" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1=Aug 29, 2015
+2=29 Aug 2015
+3=2015-08-29</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="ChangeDate" display_order="1"/>
+    </option>
+    <option option_id="changeDateTimeFormat" edit_format="radio" data_type="string" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>1=11:30 AM
+2=11:30</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="ChangeDate" display_order="2"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups>
+      <permission_group permission_group_id="changeDateGroupID"/>
+    </permission_groups>
+    <permissions>
+      <permission permission_group_id="changeDateGroupID" permission_id="changeDateID" permission_type="flag" default_value="unset" interface_group_id="changeDateInterfaceGroupID" display_order="1"/>
+    </permissions>
+    <interface_groups>
+      <interface_group interface_group_id="changeDateInterfaceGroupID" display_order="300"/>
+    </interface_groups>
+  </permissions>
+  <phrases>
+    <phrase title="changedate_changes_saved" version_id="1" version_string="1.4"><![CDATA[Changes Saved]]></phrase>
+    <phrase title="changedate_change_date" version_id="1" version_string="1.3"><![CDATA[Change Date]]></phrase>
+    <phrase title="changedate_change_date_for_post" version_id="1" version_string="1.3"><![CDATA[Change date for post]]></phrase>
+    <phrase title="changedate_enter_new_date" version_id="1" version_string="1.3"><![CDATA[Enter new date]]></phrase>
+    <phrase title="changedate_please_enter_valid_date_format" version_id="1" version_string="1.4"><![CDATA[Please enter a valid date format.]]></phrase>
+    <phrase title="changedate_submit" version_id="1" version_string="1.3"><![CDATA[Submit]]></phrase>
+    <phrase title="option_changeDateDateFormat" version_id="1" version_string="1.6"><![CDATA[Date Format]]></phrase>
+    <phrase title="option_changeDateDateFormat_explain" version_id="1" version_string="1.6"></phrase>
+    <phrase title="option_changeDateTimeFormat" version_id="1" version_string="1.6"><![CDATA[Time Format]]></phrase>
+    <phrase title="option_changeDateTimeFormat_explain" version_id="1" version_string="1.6"></phrase>
+    <phrase title="option_group_ChangeDate" version_id="1" version_string="1.5"><![CDATA[Change Date]]></phrase>
+    <phrase title="option_group_ChangeDate_description" version_id="1" version_string="1.5"><![CDATA[Options here control the Change Date add-on.]]></phrase>
+    <phrase title="permission_changeDateGroupID_changeDateID" version_id="1" version_string="1.3"><![CDATA[Allow Change Date]]></phrase>
+    <phrase title="permission_group_changeDateGroupID" version_id="1" version_string="1.3"><![CDATA[Change Date]]></phrase>
+    <phrase title="permission_interface_changeDateInterfaceGroupID" version_id="1" version_string="1.3"><![CDATA[Change Date]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="andy_changedate" version_id="1" version_string="1.3"><![CDATA[<div class="formOverlay">
+
+<xen:title>{xen:phrase changedate_change_date_for_post} #{xen:calc '{$post.position} + 1'}</xen:title>
+
+<form action="{xen:link 'posts/changedate-save', $post}" method="post" class="xenForm AutoValidator" data-redirect="on">
+
+<fieldset>
+<dl class="ctrlUnit">
+    <dt><label>{xen:phrase changedate_enter_new_date}:</label></dt>
+    <dd><input type="text" name="new_post_date" value="{$post.formatted_date}" class="textCtrl titleCtrl" /></dd>
+</dl>
+
+<dl class="ctrlUnit submitUnit">
+    <dt></dt>
+    <dd><input type="submit" value="{xen:phrase changedate_submit}" class="button primary" accesskey="s" /></dd>
+</dl>
+</fieldset>
+
+<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+
+</form>
+
+</div>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="post" modification_key="ChangeDate_post" description="ChangeDate_post" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:if is="{$post.canReport}">
+					<a href="{xen:link posts/report, $post}" class="OverlayTrigger item control report" data-cacheOverlay="false"><span></span>{xen:phrase report}</a>
+				</xen:if>]]></find>
+      <replace><![CDATA[$0
+                                <xen:if is="{$visitor.permissions.changeDateGroupID.changeDateID}">
+                                    <a href="{$requestPaths.fullBasePath}{xen:link 'posts/changedate', $post}" class="item control OverlayTrigger">{xen:phrase changedate_change_date}</a>
+                                </xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

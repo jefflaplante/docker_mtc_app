@@ -1,0 +1,99 @@
+CHANGELOG:
+11/08/2013: Version 1.0.0
+- Initial Release.
+
+12/08/2013: Version 1.1.0
+- Added option to select which affected usergroups these permissions should be forced on to.
+
+15/08/2013: Version 1.1.1
+- Fixed error change thread meta and undefined index firstPost.
+
+15/08/2013: Version 1.1.2
+- Intergrate with NodesAsTabs.
+
+13/12/2013: Version 1.2.0
+- Added option to using [TinhTe] XenTag as keyword meta tag.
+
+06/01/2014: Version 1.3.0
+- Added title tag for threads.
+- Added option to remove board title.
+
+10/01/2014: Version 1.3.1
+- Fixed error data too long if metadata has more than 255 characters.
+
+12/01/2014: Version 1.3.2
+- Fixed error on save forum metadata.
+
+07/03/2014: Version 1.3.3
+- Added node forum title option.
+
+01/04/2014: Version 1.3.4
+- Fixed bug on display node description.
+
+03/04/2014: Version 1.4.0
+- Added title tag for nodes.
+- Minor bug fixes.
+
+15/04/2014: Version 1.4.1
+- Fixed conflict with other addons.
+- Minor bug fixes.
+
+13/05/2014: Version 1.5.0
+- Added meta robot index/noindex, follow/nofollow for thread and forum.
+- Added permission to edit thread's meta robot index.
+- Added permission to edit thread's meta robot follow.
+- Merged og:description and og:title with meta data.
+- Increase performance with preload template.
+- Minor bug fixes.
+
+15/05/2014: Version 1.5.1
+- Fixed error missing argument when create new thread.
+
+26/05/2014: Version 1.5.2
+- Added option to use node robots setting for threads from this node.
+
+03/06/2014: Version 1.6.0
+- Added metadata for resource and resource category.
+- Added permissions to change metadata tag include (title, description, keyword) for resource/resource category/thread/node.
+- Minor bug fixes.
+
+06/06/2014: Version 1.6.1
+- Fixed error undefined index.
+- Fixed error missing params with forum and resource view.
+- Minor bug fixes.
+
+23/06/2014: Version 1.6.2
+- Minor bug fixes.
+
+18/09/2014: Version 1.6.3
+- Minor bug fixes.
+- Update addon's library to fit with new privacy policies at http://brivium.com/privacy-policy/
+
+07/11/2014: Version 1.6.4
+- Fixed bug not display description below page title in thread view.
+- Minor bug fixes.
+
+03/02/2014: Version 1.6.5
+- Added metadata input counter.
+- Minor bug fixes.
+
+04/03/2015: Version 1.7.0
+- Added default metadata title, description, keywords, Image alt tag for thread.
+- Minor bug fixes.
+
+06/03/2015: Version 1.8.0
+- Added default metadata title, description, keywords, Image alt tag for resource.
+- Added default metadata title, description, Image alt tag for forum.
+- Added default metadata title, description, Image alt tag for resource category.
+- Minor bug fixes.
+
+19/03/2015: Version 1.8.1
+- Minor bug fixes.
+
+13/08/2015: Version 1.8.2
+- XenForo 1.5 compatibility.
+- Minor bug fixes.
+
+21/01/2016: Version 1.8.3
+- Fixed duplicate forum title with paging number.
+- Minor bug fixes.

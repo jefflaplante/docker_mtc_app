@@ -1,0 +1,864 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="paypalDonate" title="[Aayush] Paypal Donate" version_string="1.03" version_id="4" url="" install_callback_class="Aayush_PaypalDonate_Install_Controller" install_callback_method="install" uninstall_callback_class="Aayush_PaypalDonate_Install_Controller" uninstall_callback_method="uninstall">
+  <admin_navigation>
+    <navigation navigation_id="addDonorManually" parent_navigation_id="donations" display_order="2" link="donations/add" admin_permission_id="manageDonations" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="donations" parent_navigation_id="applications" display_order="30" link="donations" admin_permission_id="manageDonations" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="listDonations" parent_navigation_id="donations" display_order="1" link="donations/list" admin_permission_id="manageDonations" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="paypalDonateSettings" parent_navigation_id="donations" display_order="3" link="options/list/paypalDonate" admin_permission_id="manageDonations" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions>
+    <admin_permission admin_permission_id="manageDonations" display_order="1000"/>
+  </admin_permissions>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="Aayush_paypaldonation_delete"><![CDATA[<xen:set var="$title">{xen:phrase donation_by_x, 'name={$donation.username}', 'date={xen:datetime {$donation.dateline}, 'absolute'}'} ({$donation.amount} {$donation.currency})</xen:set>
+
+<xen:title>{xen:phrase confirm_deletion_of_donation_entry}: {$title}</xen:title>
+<xen:h1>{xen:phrase confirm_deletion_of_donation_entry}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'donations/edit', $donation}">{$title}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="public:delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'donations/delete', $donation}" class="deleteConfirmForm">
+	<p>{xen:phrase please_confirm_that_you_want_to_delete_following_donation_entry}:</p>
+	<strong><a href="{xen:adminlink 'donations/edit', $donation}">{$title}</a></strong>
+
+	<xen:submitunit save="{xen:phrase delete_donation_entry}" />
+
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="Aayush_paypaldonation_edit"><![CDATA[<xen:title>{xen:if {$donation.donation_id}, "{xen:phrase edit_donation}: {xen:phrase donation_by_x, 'name={$donation.username}', 'date={xen:datetime {$donation.dateline}, 'absolute'}'} ({$donation.amount} {$donation.currency})", '{xen:phrase add_donation_manually}'}</xen:title>
+
+<xen:form action="{xen:adminlink 'donations/save'}" class="AutoValidator" data-redirect="yes">
+	<fieldset>
+		<xen:textboxunit label="{xen:phrase user_name}:" name="username" value="{$donation.username}" inputclass="AutoComplete AcSingle" />
+		<xen:checkboxunit label="">
+			<xen:option label="{xen:phrase anonymous}" name="anonymous" value="1" selected="{$donation.anonymous}" />
+		</xen:checkboxunit>
+	</fieldset>
+	
+	<xen:spinboxunit label="{xen:phrase amount} ({$donation.currency}):" name="amount" value="{$donation.amount}" step="5" min="0" />
+	<xen:textboxunit label="{xen:phrase note}:" name="note" value="{$donation.note}" rows="3" />
+	
+	<fieldset>
+		<xen:if is="!{$donation.donation_id}">
+			<xen:controlunit label="{xen:phrase date}:" hint="{xen:phrase optional}">
+				<xen:select name="month" value="{$month}" inputclass="autoSize">
+					<xen:option value=""></xen:option>
+					<xen:option value="1">{xen:phrase month_1}</xen:option>
+					<xen:option value="2">{xen:phrase month_2}</xen:option>
+					<xen:option value="3">{xen:phrase month_3}</xen:option>
+					<xen:option value="4">{xen:phrase month_4}</xen:option>
+					<xen:option value="5">{xen:phrase month_5}</xen:option>
+					<xen:option value="6">{xen:phrase month_6}</xen:option>
+					<xen:option value="7">{xen:phrase month_7}</xen:option>
+					<xen:option value="8">{xen:phrase month_8}</xen:option>
+					<xen:option value="9">{xen:phrase month_9}</xen:option>
+					<xen:option value="10">{xen:phrase month_10}</xen:option>
+					<xen:option value="11">{xen:phrase month_11}</xen:option>
+					<xen:option value="12">{xen:phrase month_12}</xen:option>
+				</xen:select>
+				<xen:textbox name="day" value="{$day}" size="2" inputclass="autoSize" placeholder="{xen:phrase day}" />
+				<xen:textbox name="year" value="{$year}" size="4" inputclass="autoSize" placeholder="{xen:phrase year}" />
+			</xen:controlunit>
+		<xen:else />
+			<xen:controlunit label="{xen:phrase date}:">{xen:datetime {$donation.dateline}, 'absolute'}</xen:controlunit>
+		</xen:if>
+		
+		<xen:if is="{$donation.donation_id}">
+			<input type="hidden" name="donation_id" value="{$donation.donation_id}" />
+			<xen:checkboxunit label="">
+				<xen:option label="{xen:phrase confirmed}" name="confirmed" value="1" selected="{$donation.confirmed}" />
+			</xen:checkboxunit>
+		<xen:else />
+			<input type="hidden" name="confirmed" value="1" />
+		</xen:if>
+	</fieldset>
+	
+	<xen:submitunit save="{xen:phrase save}">
+		<xen:if is="{$donation.donation_id}"><a href="{xen:adminlink 'donations/delete', $donation}" class="button OverlayTrigger">{xen:phrase delete}...</a></xen:if>
+	</xen:submitunit>
+</xen:form>]]></template>
+    <template title="Aayush_paypaldonation_list"><![CDATA[<xen:title>{xen:phrase donations}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink donations/add}" class="button">+ {xen:phrase add_donation_manually}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:set var="$thumbHeight">44</xen:set>
+
+<style>
+
+#donationBrowser .subHeading,
+#donationBrowser .footerControls { overflow: hidden; zoom: 1; }
+
+#donationBrowser .subHeading .RadioTablets { float: left; }
+
+#donationBrowser .subHeading label.checkAll { float: right; }
+
+#donationBrowser .secondaryContent .secondRow { width: 100px; }
+
+#donationList li.notConfirmed { background: {xen:property primaryLightest} !important; }
+
+</style>
+
+<script>
+$(function()
+{
+	$('#DatePresets').change(function(e)
+	{
+		var $ctrl = $(this),
+			value = $ctrl.val(),
+			$form = $ctrl.closest('form');
+			
+		if (value == -1)
+		{
+			return;
+		}
+		
+		$form.find($ctrl.data('start') || 'input[name=start]').val(value);
+		$form.find($ctrl.data('end') || 'input[name=end]').val('');
+		$form.submit();
+	});
+});
+</script>
+<xen:form action="{xen:adminlink donations}" method="get" id="donationBrowser">
+		
+	<xen:textbox name="username" value="{$username}" placeholder="{xen:phrase user_name}" size="15" title="{xen:phrase show_only_donations_by}" inputclass="Tooltip AutoComplete AcSingle" />
+
+	<xen:textbox type="date" name="start" value="{$start}" size="10" placeholder="{xen:phrase start_date}" title="{xen:phrase show_only_donations_after}" inputclass="Tooltip" />
+	
+	<xen:textbox type="date" name="end" value="{$end}" size="10" placeholder="{xen:phrase end_date}" title="{xen:phrase show_only_donations_before}" inputclass="Tooltip" />
+		
+	<xen:select name="date_preset" value="-1" id="DatePresets" title="{xen:phrase show_donations_since}" inputclass="autoSize Tooltip">
+		<xen:option value="-1">{xen:phrase date_presets}:</xen:option>
+		<xen:optgroup label="">
+			<xen:foreach loop="{$datePresets}" key="$offset" value="$phrase">
+				<xen:option value="{$offset}">{$phrase}</xen:option>
+			</xen:foreach>
+			<xen:option value="1995-01-01">{xen:phrase all_time}</xen:option>
+		</xen:optgroup>
+	</xen:select>
+	
+	<input type="submit" value="{xen:phrase go}" class="button" />
+	
+	<xen:if is="{$donations}">
+		<div class="section">		
+			<h2 class="subHeading">
+				<span class="RadioTablets">
+					<label><input type="radio" name="mode" value="recent" {xen:checked "{$mode} == 'recent'"} /> {xen:phrase sort_by_date}</label>
+					<label><input type="radio" name="mode" value="amount" {xen:checked "{$mode} == 'amount'"} /> {xen:phrase sort_by_amount}</label>
+				</span>
+			</h2>
+			
+			<ol id="donationList" class="FilterList Scrollable secondRow SquareThumbs"
+				data-thumb-height="44"
+				data-thumb-selector="a.SquareThumb">
+				<xen:foreach loop="$donations" value="$donation">
+					<xen:listitem id="{$donation.donation_id}"
+						class="{xen:if $donation.confirmed, '', 'notConfirmed'}"
+						href="{xen:adminlink donations/edit, $donation}"
+						delete="{xen:adminlink donations/delete, $donation}">
+						<xen:beforelabel>
+							<a href="{xen:adminlink users/edit, $donation}" class="SquareThumb"><img src="{xen:helper avatar, {$donation}, 's'}" /></a>
+						</xen:beforelabel>
+						<xen:label>
+							{$donation.username} <span style="color:{xen:property textCtrlText};">{$donation.amount} {$donation.currency}</span>
+							<span class="secondRow">
+								<dfn>{xen:datetime $donation.dateline, absolute}</dfn> {$donation.note}
+							</span>
+						</xen:label>
+					</xen:listitem>
+				</xen:foreach>
+			</ol>
+			
+			<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $donations}</span>', 'total={xen:number $total}'}</p>
+		</div>
+		
+		<div class="footerControls">	
+			<xen:adminpagenav page="{$page}" perpage="{$perPage}" total="{$total}" link="donations" linkparams="{$pageParams}" />
+		</div>
+	<xen:else />
+		<div class="noResults">{xen:phrase no_results_found}</div>
+	</xen:if>	
+</xen:form>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="navigation_tabs" execute_order="10" callback_class="Aayush_PaypalDonate_Listener" callback_method="navigationTabs" active="1" hint="" description=""/>
+    <listener event_id="visitor_setup" execute_order="10" callback_class="Aayush_PaypalDonate_Listener" callback_method="visitorSetup" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="aayush_pd_rundaily" cron_class="Aayush_PaypalDonate_CronEntry_Donation" cron_method="runDaily" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["0"],"minutes":["0"]}]]></entry>
+  </cron>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="paypalDonate" display_order="10000" debug_only="0"/>
+    <option option_id="PD_AddToUsergroup" edit_format="callback" data_type="unsigned_integer" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>XenForo_Option_UserGroupChooser::renderSelect</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="601"/>
+    </option>
+    <option option_id="PD_AllowCustomAmount" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="201"/>
+    </option>
+    <option option_id="PD_Amounts" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>5,10,20,50,100</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="200"/>
+    </option>
+    <option option_id="PD_Currency" edit_format="select" data_type="string" can_backup="1">
+      <default_value>USD</default_value>
+      <edit_format_params>EUR=EURO
+USD=U.S. Dollars
+CAD=Canadian Dollars
+AUD=Australian Dollars
+GBP=Pounds Sterling
+CHF=Swiss Franc
+SEK=Swedish Krona
+NOK=Norwegian Krone
+DKK=Danish Krone
+CZK=Czech Koruna
+HUF=Hungarian Forint
+PLN=Polish Zloty
+NZD=New Zealand Dollar
+HKD=Hong Kong Dollar
+SGD=Singapore Dollar
+JPY=Yen</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="101"/>
+    </option>
+    <option option_id="PD_DDGoalSidebar" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="420"/>
+    </option>
+    <option option_id="PD_DDMessage" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>The Donate system is temporarily disabled. We apologize for any inconvenience.</default_value>
+      <edit_format_params>rows=3</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="2"/>
+    </option>
+    <option option_id="PD_DisableDonations" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="1"/>
+    </option>
+    <option option_id="PD_DonateLink" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="401"/>
+    </option>
+    <option option_id="PD_DonationsPerPage" edit_format="spinbox" data_type="positive_integer" can_backup="1">
+      <default_value>25</default_value>
+      <edit_format_params>min=1
+step=5
+max=50</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="490"/>
+    </option>
+    <option option_id="PD_GoalAmount" edit_format="spinbox" data_type="positive_integer" can_backup="1">
+      <default_value>100</default_value>
+      <edit_format_params>min=1
+step=10</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="302"/>
+    </option>
+    <option option_id="PD_GoalDescription" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>rows=3</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="301"/>
+    </option>
+    <option option_id="PD_GoalTitle" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="300"/>
+    </option>
+    <option option_id="PD_MinimumAmount" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>step=1
+min=0</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="202"/>
+    </option>
+    <option option_id="PD_MonthDay" edit_format="spinbox" data_type="positive_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>step=1
+min=1
+max=30</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="303"/>
+    </option>
+    <option option_id="PD_PaypalEmailAddress" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="100"/>
+    </option>
+    <option option_id="PD_Sandbox" edit_format="onofftextbox" data_type="array" can_backup="1">
+      <default_value>a:2:{s:7:"enabled";b:0;s:5:"email";b:0;}</default_value>
+      <edit_format_params>onoff=enabled
+value=email</edit_format_params>
+      <sub_options>enabled
+email</sub_options>
+      <relation group_id="paypalDonate" display_order="701"/>
+    </option>
+    <option option_id="PD_SendAlert" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="paypalDonate" display_order="501"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="general" permission_id="canDonate" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="13000"/>
+      <permission permission_group_id="general" permission_id="canViewDonationList" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="13001"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="add_donation" version_id="1" version_string="1.0"><![CDATA[Add Donation]]></phrase>
+    <phrase title="add_donation_manually" version_id="1" version_string="1.0"><![CDATA[Add Donation Manually]]></phrase>
+    <phrase title="admin_navigation_addDonorManually" version_id="1" version_string="1.0"><![CDATA[Add Donor Manually]]></phrase>
+    <phrase title="admin_navigation_donations" version_id="1" version_string="1.0"><![CDATA[Donations]]></phrase>
+    <phrase title="admin_navigation_listDonations" version_id="1" version_string="1.0"><![CDATA[List Donations]]></phrase>
+    <phrase title="admin_navigation_paypalDonateSettings" version_id="1" version_string="1.0"><![CDATA[Settings]]></phrase>
+    <phrase title="admin_permission_manageDonations" version_id="1" version_string="1.0"><![CDATA[Manage Donations]]></phrase>
+    <phrase title="amount" version_id="1" version_string="1.0"><![CDATA[Amount]]></phrase>
+    <phrase title="anonymous" version_id="1" version_string="1.0"><![CDATA[Anonymous]]></phrase>
+    <phrase title="confirmed" version_id="1" version_string="1.0"><![CDATA[Confirmed]]></phrase>
+    <phrase title="confirm_deletion_of_donation_entry" version_id="1" version_string="1.0"><![CDATA[Confirm Deletion of Donation Entry]]></phrase>
+    <phrase title="cron_entry_aayush_pd_rundaily" version_id="1" version_string="1.0"><![CDATA[Paypal Donate Run Daily]]></phrase>
+    <phrase title="custom" version_id="1" version_string="1.0"><![CDATA[Custom]]></phrase>
+    <phrase title="delete_donation_entry" version_id="1" version_string="1.0"><![CDATA[Delete Donation Entry]]></phrase>
+    <phrase title="donate" global_cache="1" version_id="1" version_string="1.0"><![CDATA[Donate]]></phrase>
+    <phrase title="donate_to_support_x" version_id="1" version_string="1.0"><![CDATA[Donation to Support {title}]]></phrase>
+    <phrase title="donate_via_paypal" version_id="2" version_string="1.01"><![CDATA[Donate via PayPal]]></phrase>
+    <phrase title="donations" version_id="1" version_string="1.0"><![CDATA[Donations]]></phrase>
+    <phrase title="donation_amount" version_id="2" version_string="1.01"><![CDATA[Donation amount]]></phrase>
+    <phrase title="donation_by_x" version_id="1" version_string="1.0"><![CDATA[Donation by {name}, {date}]]></phrase>
+    <phrase title="donation_date" version_id="2" version_string="1.01"><![CDATA[Donation date]]></phrase>
+    <phrase title="donation_goal" version_id="1" version_string="1.0"><![CDATA[Donation Goal]]></phrase>
+    <phrase title="donation_unconfirmed_message" version_id="1" version_string="1.0"><![CDATA[We will update your status as soon as we confirm your donation. Please be patient.]]></phrase>
+    <phrase title="edit_donation" version_id="1" version_string="1.0"><![CDATA[Edit Donation]]></phrase>
+    <phrase title="goal_amount_for_this_month" version_id="1" version_string="1.0"><![CDATA[Goal amount for this month]]></phrase>
+    <phrase title="list_of_all_donations" version_id="1" version_string="1.0"><![CDATA[List of all donations]]></phrase>
+    <phrase title="option_group_paypalDonate" version_id="1" version_string="1.0"><![CDATA[[Aayush] Paypal Donate]]></phrase>
+    <phrase title="option_group_paypalDonate_description" version_id="1" version_string="1.0"><![CDATA[Advanced PayPal Donate system for XenForo.]]></phrase>
+    <phrase title="option_PD_AddToUsergroup" version_id="1" version_string="1.0"><![CDATA[Add User to User Group]]></phrase>
+    <phrase title="option_PD_AddToUsergroup_explain" version_id="1" version_string="1.0"><![CDATA[Select your Donor/VIP usergroup.]]></phrase>
+    <phrase title="option_PD_AllowCustomAmount" version_id="1" version_string="1.0"><![CDATA[Allow Custom Amount]]></phrase>
+    <phrase title="option_PD_AllowCustomAmount_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_Amounts" version_id="1" version_string="1.0"><![CDATA[Amounts]]></phrase>
+    <phrase title="option_PD_Amounts_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_Currency" version_id="1" version_string="1.0"><![CDATA[Currency]]></phrase>
+    <phrase title="option_PD_Currency_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_DDGoalSidebar" version_id="1" version_string="1.0"><![CDATA[Display Donation Goal in Sidebar]]></phrase>
+    <phrase title="option_PD_DDGoalSidebar_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_DDMessage" version_id="1" version_string="1.0"><![CDATA[Not Accepting Donations Message]]></phrase>
+    <phrase title="option_PD_DDMessage_explain" version_id="1" version_string="1.0"><![CDATA[When the donations are not accepted, this message will be shown to site visitors who wants to donate. You may use HTML.]]></phrase>
+    <phrase title="option_PD_DisableDonations" version_id="1" version_string="1.0"><![CDATA[Disable Donations temporarily]]></phrase>
+    <phrase title="option_PD_DisableDonations_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_DonateLink" version_id="1" version_string="1.0"><![CDATA[Add Donate Link To Navbar]]></phrase>
+    <phrase title="option_PD_DonateLink_explain" version_id="1" version_string="1.0"><![CDATA[Automatically add link to Donations page to "Navbar".]]></phrase>
+    <phrase title="option_PD_DonationsPerPage" version_id="1" version_string="1.0"><![CDATA[Donations Per Page]]></phrase>
+    <phrase title="option_PD_DonationsPerPage_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_GoalAmount" version_id="1" version_string="1.0"><![CDATA[Goal Amount]]></phrase>
+    <phrase title="option_PD_GoalAmount_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_GoalDescription" version_id="1" version_string="1.0"><![CDATA[Goal Description]]></phrase>
+    <phrase title="option_PD_GoalDescription_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_GoalTitle" version_id="1" version_string="1.0"><![CDATA[Goal Title]]></phrase>
+    <phrase title="option_PD_GoalTitle_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_MinimumAmount" version_id="1" version_string="1.0"><![CDATA[Minimum Amount Accepted]]></phrase>
+    <phrase title="option_PD_MinimumAmount_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_MonthDay" version_id="1" version_string="1.0"><![CDATA[Which day in month Donation Bar resets]]></phrase>
+    <phrase title="option_PD_MonthDay_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_PD_PaypalEmailAddress" version_id="1" version_string="1.0"><![CDATA[PayPal Primary Account Email]]></phrase>
+    <phrase title="option_PD_PaypalEmailAddress_explain" version_id="1" version_string="1.0"><![CDATA[Your PayPal account email address. This must be a PayPal Premier/Business Account.]]></phrase>
+    <phrase title="option_PD_Sandbox" version_id="1" version_string="1.0"><![CDATA[Enable Sandbox Mode]]></phrase>
+    <phrase title="option_PD_Sandbox_explain" version_id="1" version_string="1.0"><![CDATA[Test your code end-to-end by creating personal and business test accounts. 
+<a href="https://developer.paypal.com/developer/accounts" target="_blank">https://developer.paypal.com/developer/accounts</a>]]></phrase>
+    <phrase title="option_PD_SendAlert" version_id="1" version_string="1.0"><![CDATA[Send Alert to user when donation is confirmed]]></phrase>
+    <phrase title="option_PD_SendAlert_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="paypal_donate_minimum_amount" version_id="1" version_string="1.0"><![CDATA[Sorry, the minimum amount accepted is {amount} {currency}.]]></phrase>
+    <phrase title="permission_general_canDonate" version_id="1" version_string="1.0"><![CDATA[Can donate]]></phrase>
+    <phrase title="permission_general_canViewDonationList" version_id="1" version_string="1.0"><![CDATA[Can view donation list]]></phrase>
+    <phrase title="please_choose_from_the_options_below" version_id="1" version_string="1.0"><![CDATA[Please choose from the options below...]]></phrase>
+    <phrase title="please_confirm_that_you_want_to_delete_following_donation_entry" version_id="1" version_string="1.0"><![CDATA[Please confirm that you want to delete the following donation entry]]></phrase>
+    <phrase title="please_enter_an_donation_amount_greater_than_zero" version_id="1" version_string="1.0"><![CDATA[Please enter an donation amount greater than zero.]]></phrase>
+    <phrase title="received" version_id="1" version_string="1.0"><![CDATA[Received]]></phrase>
+    <phrase title="requested_donation_not_found" version_id="1" version_string="1.0"><![CDATA[The requested donation was not found.]]></phrase>
+    <phrase title="show_donations_since" version_id="1" version_string="1.0"><![CDATA[Show donations since...]]></phrase>
+    <phrase title="show_only_donations_after" version_id="1" version_string="1.0"><![CDATA[Show only donations after...]]></phrase>
+    <phrase title="show_only_donations_before" version_id="1" version_string="1.0"><![CDATA[Show only donations before...]]></phrase>
+    <phrase title="show_only_donations_by" version_id="1" version_string="1.0"><![CDATA[Show only donations by...]]></phrase>
+    <phrase title="sort_by_amount" version_id="1" version_string="1.0"><![CDATA[Sort By Amount]]></phrase>
+    <phrase title="sort_by_date" version_id="1" version_string="1.0"><![CDATA[Sort By Date]]></phrase>
+    <phrase title="thank_you_for_your_donation" version_id="1" version_string="1.0"><![CDATA[Thank you for your donation]]></phrase>
+    <phrase title="thank_you_for_your_support" version_id="1" version_string="1.0"><![CDATA[Thank you very much for your support.]]></phrase>
+    <phrase title="top_donations" version_id="1" version_string="1.0"><![CDATA[Top Donations]]></phrase>
+    <phrase title="viewing_donations" version_id="1" version_string="1.0"><![CDATA[Viewing Donations]]></phrase>
+    <phrase title="view_donations" version_id="1" version_string="1.0"><![CDATA[View Donations]]></phrase>
+    <phrase title="your_donation_has_been_confirmed" version_id="2" version_string="1.01"><![CDATA[Your donation has been confirmed.
+]]></phrase>
+    <phrase title="your_payment_of_x_is_complete" version_id="1" version_string="1.0"><![CDATA[Your payment of {amount} {currency} is complete.]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="donations" class="Aayush_PaypalDonate_Route_PrefixAdmin_Donations" build_link="data_only"/>
+    </route_type>
+    <route_type type="public">
+      <prefix original_prefix="donate" class="Aayush_PaypalDonate_Route_Prefix_Donations" build_link="data_only"/>
+      <prefix original_prefix="donations" class="Aayush_PaypalDonate_Route_Prefix_Donations" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="Aayush_PD.css" version_id="1" version_string="1.0"><![CDATA[.DonationGoal #custom_amount {
+	display: none;
+}
+
+.DonationGoal h2.heading 
+{
+	margin-bottom: 0px;
+}
+
+.DonationGoal .section 
+{
+	margin-top:0px;
+	border: 1px solid {xen:property primaryLighterStill};
+	padding:10px;
+	padding-top: 5px;
+}
+
+.DonationGoal .donateButton
+{
+	cursor: pointer;
+}
+
+.sidebar .DonationGoal .donateButton 
+{
+	display: block;
+	margin-top: 10px;
+}
+
+.sidebar .DonationGoal .donateButton img
+{
+	display: block;
+	margin: 0px auto;
+}
+
+.donationNote 
+{
+	margin-bottom: 5px;	
+}
+		
+.DonationGoal .ProgressMeter
+{
+	display: block;
+	padding: 2px;
+	border: 1px solid {xen:property primaryLighter};
+	border-radius: 4px;
+	background-color: {xen:property content.background-color};
+	margin-right: 0px
+	margin-top: 4px;
+	font-size: 14pt;
+	line-height: 26px;
+	position: relative;
+}
+	
+	.DonationGoal .ProgressMeter .ProgressGraphic
+	{
+		display: inline-block;
+		width: 0%;
+		height: 26px;
+		background: {xen:property primaryLight} url('{xen:property imagePath}/xenforo/gradients/category-23px-light.png') repeat-x top;
+		text-align: right;
+	}
+	
+	.DonationGoal .ProgressMeter .ProgressCounter
+	{
+		display: block;
+		height: 26px;
+		padding: 0px;
+		position: absolute;
+  		top: 0px;
+  		left: 49%;
+  		text-align: center;
+  		width: 100%;
+  		left: 0px;
+	}
+	
+	.DonationGoal .ProgressMeter .ProgressGraphic .ProgressCounter
+	{
+		color: {xen:property primaryLightest};
+	}
+	
+.Responsive .DonationGoal .xenForm .ctrlUnit > dd .textCtrl[size], .Responsive .DonationGoal .xenForm .ctrlUnit > dd .textCtrl.autoSize 
+{
+	width: auto !important;
+}]]></template>
+    <template title="Aayush_PD_donate" version_id="2" version_string="1.01"><![CDATA[<xen:title>{xen:phrase donate}</xen:title>
+<xen:description>{$xenOptions.PD_GoalDescription}</xen:description>
+
+<xen:set var="$sandbox">{$xenOptions.PD_Sandbox.enabled}</xen:set>
+<xen:set var="$payPalUrl">https://www.{xen:if {$sandbox}, 'sandbox.', ''}paypal.com/cgi-bin/websrc</xen:set>
+
+<form action="{$payPalUrl}" method="post" class="xenForm formOverlay">
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase amount}:</dt>
+		<dd class="dimmed">{$donation.amount} {$donation.currency}</dd>
+	</dl>
+	
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase note}:</dt>
+		<dd class="dimmed">{$donation.note}</dd>
+	</dl>
+	
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase anonymous}:</dt>
+		<dd class="dimmed">{xen:if $donation.anonymous, {xen:phrase yes}, {xen:phrase no}}</dd>
+	</dl>
+
+	<input type="hidden" name="cmd" value="_xclick" />
+	<input type="hidden" name="amount" value="{$donation.amount}" />
+		
+	<dl class="ctrlUnit submitUnit">	
+		<dt></dt>				
+		<dd><input type="submit" value="{xen:phrase donate_via_paypal} ({$donation.amount} {$donation.currency})" class="primary button" /></dd>
+	</dl>
+	
+	<xen:if is="{$sandbox}">
+		<input type="hidden" name="test_ipn" value="1" />
+	</xen:if>
+	
+	<input type="hidden" name="business" value="{xen:if {$sandbox}, {$xenOptions.PD_Sandbox.email}, {$xenOptions.PD_PaypalEmailAddress}}" />
+	<input type="hidden" name="currency_code" value="{$donation.currency}" />
+	<input type="hidden" name="item_name" value="{xen:phrase donate_to_support_x, 'title={$xenOptions.boardTitle}'} ({$visitor.user_id}:{$visitor.username})" />
+	<input type="hidden" name="quantity" value="1" />
+	<input type="hidden" name="no_note" value="1" />
+	<input type="hidden" name="no_shipping" value="1" />
+	<input type="hidden" name="custom" value="{$donation.donation_id}" />
+	
+	<input type="hidden" name="charset" value="utf-8" />
+	<input type="hidden" name="email" value="{$visitor.email}" />
+	
+	<input type="hidden" name="return" value="{xen:link 'full:donations/complete'}" />
+	<input type="hidden" name="cancel_return" value="{xen:link 'full:donate'}" />
+	<input type="hidden" name="notify_url" value="{$xenOptions.boardUrl}/donate_callback.php" />
+</form>]]></template>
+    <template title="Aayush_PD_donation_complete" version_id="1" version_string="1.0"><![CDATA[<xen:title>{xen:phrase thank_you_for_your_donation}</xen:title>
+
+
+<style type="text/css">
+.donationComplete 
+{
+	text-align: center;
+}
+	.donationComplete > div 
+	{
+		font-size: 14px;
+	}
+</style>
+
+<div class="section donationComplete">
+	<div>{xen:phrase thank_you_for_your_support}</div>
+	<xen:if is="{$donation.confirmed} == 0">
+		<div>{xen:phrase donation_unconfirmed_message}</div>
+	<xen:else />
+		<div>{xen:phrase your_payment_of_x_is_complete, 'amount={$donation.amount}', 'currency={$donation.currency}'}</div>
+	</xen:if>
+	
+	<br />
+	<div>Transaction Id: <span class="muted">{$transactionId}</span></div>
+</div>]]></template>
+    <template title="Aayush_PD_donation_goal" version_id="1" version_string="1.0"><![CDATA[<xen:require css="Aayush_PD.css" />
+
+<script type="text/javascript">
+$(function()
+{
+	$('.donateButton img').click(function(e)
+	{
+		var $ctrl = $(this),
+		$form = $ctrl.closest('form');
+			
+		$form.submit();
+	});
+	
+	<xen:if is="{$xenOptions.PD_AllowCustomAmount}">
+	$('#ctrl_amount').change(function() 
+	{
+		if ($(this).val() == 'custom')
+		{
+			$('#custom_amount').css('display', 'inline-block');
+		}
+		else
+		{
+			$('#custom_amount').css('display', 'none');
+		}
+	});
+	</xen:if>
+});
+</script>
+
+<xen:set var="$donationReceived"><xen:callback class="Aayush_PaypalDonate_Helper" method="getDonationReceived"></xen:callback></xen:set>
+<xen:set var="$receivedPercent">{xen:number {xen:calc '({$donationReceived} / {$xenOptions.PD_GoalAmount}) * 100'}, 0}</xen:set>
+
+<xen:if is="{$receivedPercent} > 100">
+	<xen:set var="$receivedPercent">100</xen:set>
+</xen:if>
+	
+<div class="DonationGoal section">	
+	<h2 class="heading">{xen:if $xenOptions.PD_GoalTitle, {$xenOptions.PD_GoalTitle}, {xen:phrase donation_goal}}</h2>
+	<div class="section">
+		<blockquote class="baseHtml donationNote">{xen:phrase goal_amount_for_this_month}: {$xenOptions.PD_GoalAmount} {$xenOptions.PD_Currency}, {xen:phrase received}: {$donationReceived} {$xenOptions.PD_Currency} ({$receivedPercent}%)</blockquote>
+		
+		<div class="ProgressMeter">
+			<span class="ProgressGraphic" style="width:{$receivedPercent}%;">&nbsp;</span><span class="ProgressCounter">{$receivedPercent}%</span>
+		</div>
+		
+		<h2 class="textHeading">{xen:phrase please_choose_from_the_options_below}</h2>
+		
+		<form id="donateForm" action="{xen:link 'donations/donate'}" method="post" class="xenForm AutoValidator" data-redirect="on">
+			<dl class="ctrlUnit">
+				<dt><label for="ctrl_amount">{xen:phrase amount}:</label></dt>
+				<dd>
+					<select name="amount" class="textCtrl autoSize" id="ctrl_amount" >
+					<xen:foreach loop="$amounts" value="$amount">
+						<option value="{$amount}">{$amount} {$xenOptions.PD_Currency}</option>
+					</xen:foreach>	
+					<xen:if is="{$xenOptions.PD_AllowCustomAmount}">
+						<option value="custom">{xen:phrase custom}</option>
+					</xen:if>				
+					</select>
+					
+					<xen:if is="{$xenOptions.PD_AllowCustomAmount}">
+						<span id="custom_amount">
+							<input type="text" class="textCtrl" size="5" name="custom_amount" /> <span class="textCtrl">{$xenOptions.PD_Currency}</span>
+						</span>
+					</xen:if>
+				</dd>
+			</dl>
+			
+			<dl class="ctrlUnit">
+				<dt><label for="ctrl_note">{xen:phrase note}:</label><dfn>{xen:phrase optional}</dfn></dt>
+				<dd><textarea rows="2" name="note" id="ctrl_note" class="textCtrl"></textarea></dd>
+			</dl>
+			
+			<dl class="ctrlUnit">
+				<dt><label for="ctrl_anonymous">{xen:phrase anonymous}:</label></dt>
+				<dd><input type="checkbox" name="anonymous" value="1" id="ctrl_anonymous" /> </dd>
+			</dl>
+			
+			<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+			
+			<dl class="ctrlUnit">
+				<dt></dt>
+				<dd><a class="donateButton"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="{xen:phrase donate}" /></a></dd>
+			</dl>
+		</form>
+	</div>
+</div>]]></template>
+    <template title="Aayush_PD_donation_goal_sidebar" version_id="1" version_string="1.0"><![CDATA[<xen:if is="{$visitor.canDonate} && !{$xenOptions.PD_DisableDonations}">
+	<xen:require css="Aayush_PD.css" />
+	
+	<xen:set var="$donationReceived"><xen:callback class="Aayush_PaypalDonate_Helper" method="getDonationReceived"></xen:callback></xen:set>
+	<xen:set var="$receivedPercent">{xen:number {xen:calc '({$donationReceived} / {$xenOptions.PD_GoalAmount}) * 100'}, 0}</xen:set>
+	
+	<xen:if is="{$receivedPercent} > 100">
+		<xen:set var="$receivedPercent">100</xen:set>
+	</xen:if>
+	
+	<div class="DonationGoal section">
+		<div class="secondaryContent">
+			<h3><a href="{xen:link donate}">{xen:phrase donate}</a></h3>
+			<div class="minorHeading donationNote">
+				{xen:phrase goal_amount_for_this_month}: {$xenOptions.PD_GoalAmount} {$xenOptions.PD_Currency}, {xen:phrase received}: {$donationReceived} {$xenOptions.PD_Currency} ({$receivedPercent}%)
+			</div>
+			
+			<div class="ProgressMeter">
+				<span class="ProgressGraphic" style="width:{$receivedPercent}%;">&nbsp;</span><span class="ProgressCounter">{$receivedPercent}%</span>
+			</div>
+			
+			<a href="{xen:link donate}#donateForm" class="donateButton"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="{xen:phrase donate}" /></a>
+		</div>
+		<xen:comment>
+		<div class="sectionFooter">
+			<a href="{xen:link donations/list}">{xen:phrase view_donations}</a>
+		</div>
+		</xen:comment>
+	</div>
+</xen:if>]]></template>
+    <template title="Aayush_PD_donation_list" version_id="2" version_string="1.01"><![CDATA[<xen:title>{xen:phrase donations}</xen:title>
+<xen:description>{xen:phrase list_of_all_donations}</xen:description>
+
+<xen:require css="Aayush_PD_donation_list.css" />
+
+<div class="section">
+	<xen:if is="{$donations}">
+		<ol class="overlayScroll">
+			<xen:foreach loop="{$donations}" value="{$donation}">
+				<li class="primaryContent donationListItem">
+					<xen:if is="{$donation.anonymous}">
+						<a class="avatar"><img src="{xen:property imagePath}/xenforo/avatars/avatar_s.png" width="48" height="48" alt="{xen:phrase anonymous}"></a>
+					<xen:else />	
+						<xen:avatar user="$donation" size="s" img="true" />
+					</xen:if>
+					
+					<div class="donationInfo">
+						<span class="dimmed" style="font-size:18px;">{$donation.amount}</span> 
+						<span class="faint">{$donation.currency}</span>
+					
+						<div class="userInfo">
+							<xen:if is="{$donation.anonymous}">
+								<a class="username">{xen:phrase anonymous}</a><xen:if is="{$donation.note}">,</xen:if>
+							<xen:else />
+								<a href="{xen:link members, $donation}" class="username{xen:if '{$donation.user_id} == 0', ' guest'}">{$donation.username}</a><xen:if is="{$donation.note}">,</xen:if>
+							</xen:if>
+							
+							<span class="dimmed">{$donation.note}</span>
+						</div>
+					</div>
+				</li>
+			</xen:foreach>
+		</ol>
+	</xen:if>
+	
+	<div class="pageNavLinkGroup">
+		<xen:pagenav link="donations/list" page="{$page}" perpage="{$perPage}" total="{$total}" />
+	</div>
+</div>]]></template>
+    <template title="Aayush_PD_donation_list.css" version_id="1" version_string="1.0"><![CDATA[.donationListItem
+{
+	{xen:property memberListItem}
+}
+
+	.donationListItem .avatar	
+	{
+		{xen:property memberListItemAvatar}
+	}
+	
+	.donationListItem .donationInfo
+	{
+		{xen:property memberListItemMember}
+	}
+	
+	.donationListItem a.username
+	{
+		{xen:property memberListItemUsername}
+		
+		font-weight: normal;
+	}
+	
+	.donationListItem .username.guest
+	{
+		{xen:property memberListItemGuest}
+	}
+	
+	.donationListItem .userInfo
+	{
+		{xen:property memberListItemUserInfo}
+	}]]></template>
+    <template title="Aayush_PD_index" version_id="1" version_string="1.0"><![CDATA[<xen:title>{xen:phrase donate}</xen:title>
+<xen:description>{$xenOptions.PD_GoalDescription}</xen:description>
+
+<xen:require css="Aayush_PD.css" />
+<xen:include template="Aayush_PD_donation_goal" />
+<xen:edithint template="Aayush_PD_list_simple.css" />
+
+<xen:sidebar>
+	<xen:include template="Aayush_PD_top_donations" />
+	<xen:include template="sidebar_share_page" />
+</xen:sidebar>]]></template>
+    <template title="Aayush_PD_list_simple.css" version_id="1" version_string="1.0"><![CDATA[.donationListItem
+{
+	margin: 5px 0;
+  	overflow: hidden;
+  	zoom: 1;
+}
+
+.donationListItem .avatar
+{
+	float: left;
+	margin-right: 5px;
+	width: auto;
+  	height: auto;
+}
+
+	.donationListItem .avatar img
+	{
+		width: 32px;
+		height: 32px;
+	}
+
+
+.donationListItem .username
+{
+	font-size: 11pt;
+	margin-top: 0px;
+	display: block;
+}]]></template>
+    <template title="Aayush_PD_navlinks" version_id="1" version_string="1.0"><![CDATA[<ul class="secondaryContent blockLinksList">
+	<li><a href="{xen:link donations/list}">{xen:phrase view_donations}</a></li>
+</ul>]]></template>
+    <template title="Aayush_PD_top_donations" version_id="1" version_string="1.0"><![CDATA[<xen:if is="{$topDonations}">
+	<xen:require css="Aayush_PD_list_simple.css" />
+	<div class="section topDonations">
+		<div class="secondaryContent">
+			<h3>{xen:phrase top_donations}</h3>
+			<ul>
+			<xen:foreach loop="$topDonations" value="$donation">
+				<li class="donationListItem" id="donation_id_{$donation.donation_id}">
+					<xen:if is="{$donation.anonymous}">
+						<a class="avatar"><img src="{xen:property imagePath}/xenforo/avatars/avatar_s.png" width="48" height="48" alt="{xen:phrase anonymous}"></a>
+						<a class="username">{xen:phrase anonymous}</a>
+					<xen:else />
+						<xen:avatar user="$donation" size="s" img="true" />
+						<a href="{xen:link members, {$donation}}" class="username">{$donation.username}</a>
+					</xen:if>
+					
+					<div class="additionalRow muted">
+						{$donation.amount} {$donation.currency}
+					</div>
+				</li>
+			</xen:foreach>
+			</ul>
+		</div>
+	</div>
+</xen:if>]]></template>
+    <template title="alert_donation_confirm" version_id="2" version_string="1.01"><![CDATA[{xen:phrase your_donation_has_been_confirmed}
+<div>{xen:phrase donation_date}: {xen:datetime {$content.dateline}, 'absolute'}</div>
+<div>{xen:phrase donation_amount}: <b>{$content.amount} {$content.currency}</b></div>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="forum_list" modification_key="aayush_PD_donation_goal_sidebar" description="" execution_order="1" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:hook name="forum_list_sidebar">]]></find>
+      <replace><![CDATA[$0
+<xen:if is="{$xenOptions.PD_DDGoalSidebar}">
+    <xen:include template="Aayush_PD_donation_goal_sidebar" />
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

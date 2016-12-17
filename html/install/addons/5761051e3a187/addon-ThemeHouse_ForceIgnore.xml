@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_ForceIgnore" title="[⌂] Force Ignore" version_string="1.0.1" version_id="1447261019" url="http://xf.themehouse.io/" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation>
+    <navigation navigation_id="forceIgnore" parent_navigation_id="banning" display_order="50" link="force-ignore/users" admin_permission_id="ban" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="th_add_forceignore"><![CDATA[<xen:title>{xen:phrase th_force_ignore_forceignore}</xen:title>
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'force-ignore/users'}">{xen:phrase th_force_ignore_forceignore}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:form action="{xen:adminlink force-ignore/users/ignore}">
+
+	<xen:textboxunit label="{xen:phrase user_name} 1:" name="username_1" inputclass="AutoComplete AcSingle" autofocus="true" />
+	<xen:textboxunit label="{xen:phrase user_name} 2:" name="username_2" inputclass="AutoComplete AcSingle" />
+
+	<xen:textboxunit label="{xen:phrase th_ends_forceignore}:" type="date" name="end_date" value="" />
+	<xen:submitunit save="{xen:phrase th_submit_users_forceignore}" />
+
+</xen:form>]]></template>
+    <template title="th_edit_forceignore"><![CDATA[<xen:title>{xen:phrase th_edit_forceignore}</xen:title>
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'force-ignore/users'}">{xen:phrase th_force_ignore_forceignore}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:form action="{xen:adminlink force-ignore/users/ignore}">
+
+	<xen:controlunit label="{xen:phrase user_name} 1:">{$userName1}</xen:controlunit>
+	<input type="hidden" name="username_1" value="{$userName1}" />
+	<xen:if is="{$userName2}">
+		<xen:controlunit label="{xen:phrase user_name} 2:">{$userName2}</xen:controlunit>
+		<input type="hidden" name="username_2" value="{$userName2}" />
+	</xen:if>
+
+	<xen:radiounit label="{xen:phrase th_ends_forceignore}:" name="end_date_edit">
+		<xen:option value="permanent" selected="{$endDate} == 0">{xen:phrase permanent}</xen:option>
+		<xen:option value="temporary" selected="{$endDate} > 0">
+			<xen:label>{xen:phrase until}:</xen:label>
+			<xen:textbox type="date" name="end_date" value="{xen:if $endDate, {xen:date $endDate, picker}, ''}" />
+		</xen:option>
+	</xen:radiounit>
+
+	<input type="hidden" name="is_edit" value="1" />
+	<xen:submitunit save="{xen:phrase th_edit_users_forceignore}" />
+
+</xen:form>]]></template>
+    <template title="th_users_forceignore"><![CDATA[<xen:title>{xen:phrase th_force_ignore_forceignore}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'force-ignore/users/add'}" class="button">{xen:phrase th_add_users_forceignore}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:form action="{xen:adminlink force-ignore/users}" class="section">	
+	<xen:if is="{$ignoredUsers}">
+		
+		<h2 class="subHeading">
+			{xen:phrase th_users_forceignore}
+			<xen:include template="filter_list_controls" />
+		</h2>
+		
+		<ol class="FilterList">
+			<xen:foreach loop="$ignoredUsers" value="$users">
+				<xen:listitem
+					id="{$users.forceignore_id}"
+					label="{$users.user1.username}{xen:if '{$users.user2.username}', ' + {$users.user2.username}'}"
+					href="{xen:adminlink 'force-ignore/users/edit', '', 'id={$users.force_ignore_id}'}"
+					delete="{xen:adminlink 'force-ignore/users/remove', '', 'id={$users.force_ignore_id}'}"
+					deletehint="{xen:phrase th_remove_forceignore}">
+					<xen:snippet>
+						{xen:phrase th_ends_forceignore}: <span class="muted">{xen:if $users.end_date, {xen:datetime $users.end_date}, '{xen:phrase never}'}</span>
+					</xen:snippet>
+					<xen:beforelabel>
+						<img src="{xen:helper avatar, $users.user1, s}" alt="" class="listAvatar" />
+						<img src="{xen:helper avatar, $users.user2, s}" alt="" class="listAvatar" />
+					</xen:beforelabel>
+				</xen:listitem>
+			</xen:foreach>
+		</ol>
+		
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count={xen:count $ignoredUsers}', 'total={xen:number $totalIgnored}'}</p>
+	
+		{xen:adminpagenav {$perPage}, {$totalIgnored}, {$page}, 'force-ignore/users'}	
+	<xen:else />
+		<div class="noResults">{xen:phrase th_no_users_forceignore}</div>
+	</xen:if>
+</xen:form>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_ForceIgnore_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_ForceIgnore_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="ThemeHouse_ForceIgnore_Listener_LoadClass" callback_method="loadClassController" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="ThemeHouse_ForceIgnore_Listener_LoadClass" callback_method="loadClassModel" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="forceignore" cron_class="ThemeHouse_ForceIgnore_CronEntry_CleanUp" cron_method="cleanUp" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["0"]}]]></entry>
+  </cron>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="admin_navigation_forceIgnore" version_id="100" version_string="1.0.0"><![CDATA[Force Ignore]]></phrase>
+    <phrase title="cron_entry_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Force Ignore Cleanup]]></phrase>
+    <phrase title="th_add_users_forceignore" version_id="100" version_string="1.0.0"><![CDATA[+ Add Users]]></phrase>
+    <phrase title="th_edit_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Force Ignore Edit]]></phrase>
+    <phrase title="th_edit_users_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Edit Users]]></phrase>
+    <phrase title="th_ends_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Ignore Ends]]></phrase>
+    <phrase title="th_end_date_must_be_in_future_forceignore" version_id="100" version_string="1.0.0"><![CDATA[End Date must be in the future!]]></phrase>
+    <phrase title="th_force_ignore_forceignore" version_id="1370533623" version_string="1.0.0"><![CDATA[Force Ignore]]></phrase>
+    <phrase title="th_no_users_forceignore" version_id="100" version_string="1.0.0"><![CDATA[No Users Found]]></phrase>
+    <phrase title="th_remove_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Remove Ignore]]></phrase>
+    <phrase title="th_remove_not_allowed_forceignore" version_id="1370533984" version_string="1.0.0"><![CDATA[This user has been placed on your ignore list by staff and can not be unignored.]]></phrase>
+    <phrase title="th_submit_users_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Submit Users]]></phrase>
+    <phrase title="th_users_forceignore" version_id="100" version_string="1.0.0"><![CDATA[Force Ignored Users]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="force-ignore" class="ThemeHouse_ForceIgnore_Route_PrefixAdmin_ForceIgnore" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications>
+    <modification template="footer" modification_key="th_copyrightNotice_forceIgnore" description="Copyright notice for [⌂] Force Ignore" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

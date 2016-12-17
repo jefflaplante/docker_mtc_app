@@ -1,0 +1,785 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="KeywordAlert" title="[bd] Keyword Alert" version_string="1.1.0" version_id="17" url="" install_callback_class="KeywordAlert_Installer" install_callback_method="install" uninstall_callback_class="KeywordAlert_Installer" uninstall_callback_method="uninstall" visitor_id="1566">
+  <admin_navigation>
+    <navigation navigation_id="KeywordAlert" parent_navigation_id="toolsGroups" display_order="9999" link="keyword-alert" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="keywordalert_keyword_delete"><![CDATA[<xen:title>{xen:phrase keywordalert_keyword_confirm_deletion}: {$keyword.name}</xen:title>
+<xen:h1>{xen:phrase keywordalert_keyword_confirm_deletion}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'keyword-alert/edit', $keyword}">{$keyword.name}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'keyword-alert/delete', $keyword}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase keywordalert_keyword_please_confirm}:</p>
+	<strong><a href="{xen:adminlink 'keyword-alert/edit', $keyword}">{$keyword.name}</a></strong>
+
+	<xen:submitunit save="{xen:phrase keywordalert_keyword_delete}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="keywordalert_keyword_edit"><![CDATA[<xen:require js="js/KeywordAlert/editor.js" />
+
+<xen:title>{xen:if '{$keyword.keyword_id}', '{xen:phrase keywordalert_keyword_edit}', '{xen:phrase keywordalert_keyword_add}'}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'keyword-alert'}">{xen:phrase keywordalert_keyword_alert}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:form action="{xen:adminlink 'keyword-alert/save'}" class="AutoValidator" data-redirect="yes">
+
+	
+	<xen:textboxunit label="{xen:phrase keywordalert_name}:" name="name" value="{$keyword.name}" data-liveTitleTemplate="{xen:if {$keyword.keyword_id},
+		'{xen:phrase keywordalert_keyword_edit}: <em>%s</em>',
+		'{xen:phrase keywordalert_keyword_add}: <em>%s</em>'}" />
+	
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase keywordalert_keywords}:</dt>
+		<dd>
+			<ul>
+				<xen:if is="{$keyword} AND {$keyword.keywords}">
+					<xen:foreach loop="$keyword.keywords" value="$aKeyword" i="$i">
+						<li>
+							<xen:include template="keywordalert_keyword_edit_keyword">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_KeywordEditor">
+					<xen:include template="keywordalert_keyword_edit_keyword">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.keywords}', '{xen:count $keyword.keywords}', '0'}</xen:set>
+						<xen:set var="$aKeyword"></xen:set>
+					</xen:include>
+				</li>
+			</ul>
+		</dd>
+	</dl>
+	
+	<xen:selectunit label="{xen:phrase keywordalert_notify_frequency}:" name="notify_frequency" value="{$keyword.notify_frequency}">
+		<xen:option value="0">{xen:phrase keywordalert_notify_frequency_immediately}</xen:option>
+		<xen:option value="86400">{xen:phrase keywordalert_notify_frequency_daily}</xen:option>
+		<xen:option value="604800">{xen:phrase keywordalert_notify_frequency_weekly}</xen:option>
+		<xen:option value="2592000">{xen:phrase keywordalert_notify_frequency_monthly}</xen:option>
+	</xen:selectunit>
+	<xen:textboxunit label="{xen:phrase keywordalert_user_id}:" name="user_id" value="{$keyword.user_id}" />
+	
+	<xen:selectunit label="{xen:phrase keywordalert_forum_mode}:" name="forum_mode" value="{$keyword.forum_mode}">
+		<xen:option value="all">{xen:phrase keywordalert_forum_mode_all}</xen:option>
+		<xen:option value="whitelist">{xen:phrase keywordalert_forum_mode_whitelist}</xen:option>
+		<xen:option value="blacklist">{xen:phrase keywordalert_forum_mode_blacklist}</xen:option>
+	</xen:selectunit>
+	<dl class="ctrlUnit">
+		<dt>&nbsp;</dt>
+		<dd>
+			<ul>
+				<xen:if is="{$keyword.forum_data}">
+					<xen:foreach loop="$keyword.forum_data" value="$forumId" i="$i">
+						<li>
+							<xen:include template="keywordalert_keyword_edit_forum">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_ForumSelector">
+					<xen:include template="keywordalert_keyword_edit_forum">
+						<xen:set var="$counter">{xen:if '{$keyword.forum_data}', '{xen:count $keyword.forum_data}', '0'}</xen:set>
+						<xen:set var="$forumId">0</xen:set>
+					</xen:include>
+				</li>
+			</ul>
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase keywordalert_excluded_rules}:</dt>
+		<dd>
+			<ul>
+				<xen:if is="{$keyword.excluded_rules}">
+					<xen:foreach loop="$keyword.excluded_rules" value="$excludedRule" i="$i">
+						<li>
+							<xen:include template="keywordalert_keyword_edit_excluded_rule">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_ExcludedRuleEditor">
+					<xen:include template="keywordalert_keyword_edit_excluded_rule">
+						<xen:set var="$counter">{xen:if '{$keyword.excluded_rules}', '{xen:count $keyword.excluded_rules}', '0'}</xen:set>
+						<xen:set var="$excludedRule"></xen:set>
+					</xen:include>
+				</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<xen:submitunit save="{xen:phrase keywordalert_keyword_save}">
+		<input type="button" name="delete" value="{xen:phrase keywordalert_keyword_delete}"
+			accesskey="d" class="button OverlayTrigger"
+			data-href="{xen:adminlink 'keyword-alert/delete', $keyword}"
+			{xen:if '!{$keyword.keyword_id}', 'style="display: none"'}
+		/>
+	</xen:submitunit>
+	
+	<input type="hidden" name="keyword_id" value="{$keyword.keyword_id}" />
+</xen:form>]]></template>
+    <template title="keywordalert_keyword_edit_excluded_rule"><![CDATA[<xen:textbox name="excluded_rules[{$counter}]" value="{$excludedRule}" placeholder="{xen:phrase keywordalert_excluded_rule}"/>]]></template>
+    <template title="keywordalert_keyword_edit_forum"><![CDATA[<xen:select name="forum_data[{$counter}]" value="{$forumId}">
+	<xen:option value="0">{xen:phrase keywordalert_please_select_one}</xen:option>
+	<xen:options source="$forums" />
+</xen:select>]]></template>
+    <template title="keywordalert_keyword_edit_keyword"><![CDATA[<xen:textbox name="keywords[{$counter}][text]" value="{xen:if '{$aKeyword}', $aKeyword.text}" placeholder="{xen:phrase keywordalert_keyword}" />]]></template>
+    <template title="keywordalert_keyword_list"><![CDATA[<xen:title>{xen:phrase keywordalert_keyword}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'keyword-alert/add'}" class="button" accesskey="a">+ {xen:phrase keywordalert_keyword_add}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:form action="{xen:adminlink 'keyword-alert'}" class="section">
+	<xen:if is="{$keywords}">
+		<h2 class="subHeading">
+			<xen:include template="filter_list_controls" />
+			{xen:phrase keywordalert_keyword}
+		</h2>
+	
+		<ol class="FilterList secondRow">
+			<xen:foreach loop="$keywords" value="$keyword">
+				<xen:listitem
+					id="{$keyword.keyword_id}"
+					href="{xen:adminlink 'keyword-alert/edit', $keyword}"
+					delete="{xen:adminlink 'keyword-alert/delete', $keyword}">
+					<xen:label>
+						{$keyword.name} ({xen:helper keywordalert_notifyfrequency, $keyword.notify_frequency})
+						<span class="secondRow">
+							{$keyword.username}: {xen:helper keywordalert_keywordscommaseparated, $keyword.keywords}
+						</span>
+					</xen:label>
+				</xen:listitem>
+			</xen:foreach>
+		</ol>
+	
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:number {xen:count $allKeyword}}</span>', 'total={xen:number $total}'}</p>
+		
+		<xen:adminpagenav link="keyword-alert" page="{$page}" perpage="{$perPage}" total="{$total}" />
+	<xen:else />
+		<div class="noResults">{xen:phrase keywordalert_keyword_no_results}</div>
+	</xen:if>
+</xen:form>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="KeywordAlert_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="KeywordAlert_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="KeywordAlert_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="KeywordAlert_Listener" callback_method="load_class" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="KeywordAlert" cron_class="KeywordAlert_Cron" cron_method="sendEmails" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["20","40"]}]]></entry>
+  </cron>
+  <email_templates>
+    <template title="keywordalert_email">
+      <subject><![CDATA[{xen:phrase keywordalert_your_email_digest_from_x, 'board_title={$xenOptions.boardTitle}'}]]></subject>
+      <body_text><![CDATA[{xen:phrase keywordalert_hello_x_text, 'username={$targetUser.username}', 'board_title={$xenOptions.boardTitle}'}
+
+----------------------------------------------------------------------
+<xen:foreach loop="$queueItemsData" value="$data">
+<xen:if is="{$data.title}">
+{xen:phrase keywordalert_x_by_y, 'title={$data.title}', 'username={$data.user.username}'}:
+<xen:else />
+{$data.user.username}:
+</xen:if>
+
+{xen:raw $data.snippet}
+
+{xen:phrase keywordalert_to_view_this_click_here}:
+{$data.link}
+
+----------------------------------------------------------------------
+</xen:foreach>
+
+{xen:phrase keywordalert_email_footer_text, 'board_title={$xenOptions.boardTitle}', 'board_link={xen:link 'canonical:index'}', 'prefs_link={xen:link 'canonical:account/keyword-alert'}'}]]></body_text>
+      <body_html><![CDATA[<p>{xen:phrase keywordalert_hello_x_html, 'username={$targetUser.username}', 'board_title={$xenOptions.boardTitle}'}</p>
+
+<hr />
+<xen:foreach loop="$queueItemsData" value="$data">
+<xen:if is="{$data.title}">
+<p>{xen:phrase keywordalert_x_by_y, 'title={$data.title}', 'username=<a href="{xen:link 'canonical:members', $data.user}">{$data.user.username}</a>'}:</p>
+<xen:else />
+<p>{$data.user.username}:</p>
+</xen:if>
+
+<p>{xen:raw $data.snippetHtml}</p>
+
+<p>{xen:phrase keywordalert_to_view_this_click_here}:<br/>
+<a href="{$data.link}">{$data.link}</a></p>
+
+<hr/>
+</xen:foreach>
+
+{xen:phrase keywordalert_email_footer_html, 'board_title={$xenOptions.boardTitle}', 'board_link={xen:link 'canonical:index'}', 'prefs_link={xen:link 'canonical:account/keyword-alert'}'}]]></body_html>
+    </template>
+  </email_templates>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="general" permission_id="KeywordAlert_canUse" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="9999"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="admin_navigation_KeywordAlert" version_id="1" version_string="0.9"><![CDATA[Keyword Alert]]></phrase>
+    <phrase title="cron_entry_KeywordAlert" version_id="1" version_string="0.9"><![CDATA[[Keyword Alert] Send emails]]></phrase>
+    <phrase title="keywordalert_email_footer_html" version_id="1" version_string="0.9"><![CDATA[<p>This message was sent to you from {board_title} because your preferences are set to receive email when pre-configured keywords are found.</p>
+
+<p>To stop receiving email, please edit your preferences:<br/>
+<a href="{prefs_link}">{prefs_link}</a></p>
+
+<p><a href="{board_link}">{board_title}</a></p>]]></phrase>
+    <phrase title="keywordalert_email_footer_text" version_id="1" version_string="0.9"><![CDATA[This message was sent to you from {board_title} because your preferences are set to receive email when pre-configured keywords are found.
+
+To stop receiving email, please edit your preferences:
+{prefs_link}
+
+{board_link}]]></phrase>
+    <phrase title="keywordalert_enter_your_excluded_rules_below" version_id="2" version_string="0.9.1"><![CDATA[Enter excluded rules below]]></phrase>
+    <phrase title="keywordalert_enter_your_keywords_below" version_id="3" version_string="0.9.2"><![CDATA[Enter your keywords below]]></phrase>
+    <phrase title="keywordalert_excluded_rule" version_id="1" version_string="0.9"><![CDATA[Excluded Rule]]></phrase>
+    <phrase title="keywordalert_excluded_rules" version_id="1" version_string="0.9"><![CDATA[Excluded Rules]]></phrase>
+    <phrase title="keywordalert_excluded_rules_explain" version_id="3" version_string="0.9.2"><![CDATA[Enter only one rule each line.<br/>
+<br/>
+Rules must conform following syntax:<br/>
+- USER_ID = &lt;user id&gt;: Excludes posts made by user with the specified user id.<br/>]]></phrase>
+    <phrase title="keywordalert_forum_mode" version_id="1" version_string="0.9"><![CDATA[Forum Mode]]></phrase>
+    <phrase title="keywordalert_forum_mode_all" version_id="1" version_string="0.9"><![CDATA[All forums]]></phrase>
+    <phrase title="keywordalert_forum_mode_blacklist" version_id="1" version_string="0.9"><![CDATA[Black list]]></phrase>
+    <phrase title="keywordalert_forum_mode_whitelist" version_id="1" version_string="0.9"><![CDATA[White list]]></phrase>
+    <phrase title="keywordalert_hello_x_html" version_id="1" version_string="0.9"><![CDATA[Hello {username},<br/>
+<br/>
+We are sending you contents which were matched with your keywords at {board_title}:<br/>]]></phrase>
+    <phrase title="keywordalert_hello_x_text" version_id="1" version_string="0.9"><![CDATA[Hello {username},
+
+We are sending you contents which were matched with your keywords at {board_title}:]]></phrase>
+    <phrase title="keywordalert_in_title" version_id="12" version_string="1.0.5"><![CDATA[in title]]></phrase>
+    <phrase title="keywordalert_in_title_explain" version_id="12" version_string="1.0.5"><![CDATA[Enable to look for text in thread title too.]]></phrase>
+    <phrase title="keywordalert_keyword" version_id="1" version_string="0.9"><![CDATA[Keyword]]></phrase>
+    <phrase title="keywordalert_keywords" version_id="1" version_string="0.9"><![CDATA[Keywords]]></phrase>
+    <phrase title="keywordalert_keywords_explain" version_id="3" version_string="0.9.2"><![CDATA[Each line can be one keyword (example: "banana") or a phrase of multiple words (example: "united states of america").<br/>
+<br/>
+You can also use @ syntax to search for poster by username (example: "@admin" will match all contents posted by admin).]]></phrase>
+    <phrase title="keywordalert_keyword_add" version_id="1" version_string="0.9"><![CDATA[Add New Keyword]]></phrase>
+    <phrase title="keywordalert_keyword_alert" version_id="1" version_string="0.9"><![CDATA[Keyword Alert]]></phrase>
+    <phrase title="keywordalert_keyword_confirm_deletion" version_id="1" version_string="0.9"><![CDATA[Confirm Deletion of Keyword]]></phrase>
+    <phrase title="keywordalert_keyword_delete" version_id="1" version_string="0.9"><![CDATA[Delete Keyword]]></phrase>
+    <phrase title="keywordalert_keyword_edit" version_id="1" version_string="0.9"><![CDATA[Edit Keyword]]></phrase>
+    <phrase title="keywordalert_keyword_not_found" version_id="1" version_string="0.9"><![CDATA[The requested Keyword could not be found]]></phrase>
+    <phrase title="keywordalert_keyword_no_results" version_id="1" version_string="0.9"><![CDATA[No clues of Keyword at this moment...]]></phrase>
+    <phrase title="keywordalert_keyword_please_confirm" version_id="1" version_string="0.9"><![CDATA[Please confirm that you want to delete the following Keyword]]></phrase>
+    <phrase title="keywordalert_keyword_save" version_id="1" version_string="0.9"><![CDATA[Save Keyword]]></phrase>
+    <phrase title="keywordalert_name" version_id="1" version_string="0.9"><![CDATA[Keyword Set]]></phrase>
+    <phrase title="keywordalert_notify_frequency" version_id="12" version_string="1.0.5"><![CDATA[Email Frequency]]></phrase>
+    <phrase title="keywordalert_notify_frequency_daily" version_id="1" version_string="0.9"><![CDATA[Daily]]></phrase>
+    <phrase title="keywordalert_notify_frequency_immediately" version_id="1" version_string="0.9"><![CDATA[Immediately]]></phrase>
+    <phrase title="keywordalert_notify_frequency_monthly" version_id="1" version_string="0.9"><![CDATA[Monthly (last day every month)]]></phrase>
+    <phrase title="keywordalert_notify_frequency_monthly_short" version_id="1" version_string="0.9"><![CDATA[Monthly]]></phrase>
+    <phrase title="keywordalert_notify_frequency_weekly" version_id="1" version_string="0.9"><![CDATA[Weekly (every Monday)]]></phrase>
+    <phrase title="keywordalert_notify_frequency_weekly_short" version_id="1" version_string="0.9"><![CDATA[Weekly]]></phrase>
+    <phrase title="keywordalert_no_send_email" version_id="12" version_string="1.0.5"><![CDATA[Don't send emails]]></phrase>
+    <phrase title="keywordalert_please_confirm_you_want_delete_this_keyword" version_id="1" version_string="0.9"><![CDATA[Please confirm that you want to delete this keyword]]></phrase>
+    <phrase title="keywordalert_please_select_one" version_id="1" version_string="0.9"><![CDATA[Please select one]]></phrase>
+    <phrase title="keywordalert_rule_user_id_equals_x" version_id="1" version_string="0.9"><![CDATA[User #{value}]]></phrase>
+    <phrase title="keywordalert_send_alert" version_id="12" version_string="1.0.5"><![CDATA[Also send alerts]]></phrase>
+    <phrase title="keywordalert_to_view_this_click_here" version_id="1" version_string="0.9"><![CDATA[To view this, click here]]></phrase>
+    <phrase title="keywordalert_user_id" version_id="1" version_string="0.9"><![CDATA[User Id]]></phrase>
+    <phrase title="keywordalert_x_by_y" version_id="1" version_string="0.9"><![CDATA["{title}" by {username}]]></phrase>
+    <phrase title="keywordalert_x_replied_to_thread_y_keyword_z" version_id="12" version_string="1.0.5"><![CDATA[{name} replied to the thread {title} and matched your keyword "{keyword}".]]></phrase>
+    <phrase title="keywordalert_x_started_thread_y_keyword_z" version_id="12" version_string="1.0.5"><![CDATA[{name} started a thread called {title} that matched your keyword "{keyword}".]]></phrase>
+    <phrase title="keywordalert_your_email_digest_from_x" version_id="1" version_string="0.9"><![CDATA[Your Email Digest From {board_title}]]></phrase>
+    <phrase title="keywordalert_your_keyword_has_been_saved" version_id="1" version_string="0.9"><![CDATA[Your keyword has been saved.]]></phrase>
+    <phrase title="keywordalert_you_havent_setup_any_keyword_alert" version_id="1" version_string="0.9"><![CDATA[You haven't setup any keyword alert.]]></phrase>
+    <phrase title="keywordalert_you_must_enter_some_keywords" version_id="2" version_string="0.9.1"><![CDATA[You must enter some keywords.]]></phrase>
+    <phrase title="keywordalert_you_must_select_at_least_one_forum" version_id="1" version_string="0.9"><![CDATA[You must select at least one forum.]]></phrase>
+    <phrase title="permission_general_KeywordAlert_canUse" version_id="1" version_string="0.9"><![CDATA[[Keyword Alert] Can use]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="keyword-alert" class="KeywordAlert_Route_PrefixAdmin_Keyword" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="alert_post_keywordalert" version_id="12" version_string="1.0.5"><![CDATA[<xen:if is="{$content.post_id} == {$content.first_post_id}">
+	{xen:phrase keywordalert_x_started_thread_y_keyword_z,
+	'keyword={$extra.keyword.matchedText}',
+	'name={xen:helper username, $user, 'subject'}',
+	'title=<a href="{xen:link posts, $content}" class="PopupItemLink">{xen:helper threadPrefix, $content}{$content.title}</a>'}
+<xen:else />
+	{xen:phrase keywordalert_x_replied_to_thread_y_keyword_z,
+	'keyword={$extra.keyword.matchedText}',
+	'name={xen:helper username, $user, 'subject'}',
+	'title=<a href="{xen:link posts, $content}" class="PopupItemLink">{xen:helper threadPrefix, $content}{$content.title}</a>'}
+</xen:if>]]></template>
+    <template title="keywordalert.css" version_id="12" version_string="1.0.5"><![CDATA[/* keyword list */
+.KeywordAlert_KeywordList {
+}
+	.KeywordAlert_KeywordList dt, .KeywordAlert_KeywordList dd, .KeywordAlert_KeywordList .listBlock {
+		padding: 5px;
+	}
+	
+	.KeywordAlert_KeywordList .keywordName {
+		width: 200px;
+	}
+	.KeywordAlert_KeywordList .keywordKeywords {
+		width: auto;
+	}
+	.KeywordAlert_KeywordList .keywordForumMode {
+		width: 200px;
+	}
+		.KeywordAlert_KeywordList .keywordForumMode .KeywordAlert_ForumSelector select {
+			max-width: 185px;
+		}
+	.KeywordAlert_KeywordList .keywordExcludedRules {
+		width: 200px;
+	}
+
+	.KeywordAlert_KeywordList sup {
+		vertical-align: super;
+	}
+
+.KeywordAlert_KeywordList .keywordName          { *width: 9.97%; }
+.KeywordAlert_KeywordList .keywordKeywords      { *width: 49.97%; }
+.KeywordAlert_KeywordList .keywordForumMode     { *width: 19.97%; }
+.KeywordAlert_KeywordList .keywordExcludedRules { *width: 19.97%; }
+
+/* inline editor */
+.KeywordAlert_KeywordListItem.inlineCtrlGroup {
+}
+	.inlineCtrlGroup .keywordName,
+	.inlineCtrlGroup .keywordKeywords,
+	.inlineCtrlGroup .keywordForumMode,
+	.inlineCtrlGroup .keywordExcludedRules {
+		vertical-align: top;
+	}
+
+
+.KeywordAlert_KeywordListItem .formValidationInlineError { z-index: -1; }
+
+/* inlinde editor tooltip */
+.KeywordAlert_KeywordListItem .xenTooltip {
+	max-width: 200px;
+}
+.KeywordAlert_KeywordListItem .xenTooltip .arrow {
+	border-right: 6px solid {xen:property tooltipBackground};
+	border-top: 6px solid transparent;
+	border-left: 1px none black;
+	border-bottom: 6px solid transparent;
+	left: -6px;
+	bottom: auto;
+}
+
+@media (max-width:{xen:property maxResponsiveWideWidth}) {
+	
+	.KeywordAlert_KeywordList .sectionHeaders {
+		display: none;
+	}
+	
+	.KeywordAlert_KeywordListItem {
+		border-bottom: 1px solid {xen:property primaryLight};
+		display: block;
+		margin-bottom: 5px;
+	}
+
+	.KeywordAlert_KeywordListItem .listBlock {
+		display: block;
+		width: auto;
+	}
+	
+}]]></template>
+    <template title="keywordalert_account_wrapper_sidebar" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper keywordalert_canuse}">
+	<li>
+		<a
+			class="{xen:if "{$selectedKey} == 'account/keyword-alert'", 'secondaryContent', 'primaryContent'}"
+			href="{xen:link account/keyword-alert}">
+			{xen:phrase keywordalert_keyword_alert}
+		</a>
+	</li>
+</xen:if>]]></template>
+    <template title="keywordalert_delete_confirm" version_id="1" version_string="0.9"><![CDATA[<xen:title>{xen:phrase keywordalert_keyword_delete}: {$keyword.name}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link 'account/keyword-alert'}">{xen:phrase keywordalert_keyword_alert}</xen:breadcrumb>
+</xen:navigation>
+
+<form action="{xen:link 'account/keyword-alert-delete'}" method="post" class="xenForm formOverlay">
+	<p>{xen:phrase keywordalert_please_confirm_you_want_delete_this_keyword}:</p>
+	<strong><a href="{xen:link 'account/keyword-alert', '', 'edit={$keyword.keyword_id}'}">{$keyword.name}</a></strong>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" value="{xen:phrase keywordalert_keyword_delete}" accesskey="d" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="keyword_id" value="{$keyword.keyword_id}" />	
+	<input type="hidden" name="_xfConfirm" value="1" />
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>]]></template>
+    <template title="keywordalert_edit" version_id="12" version_string="1.0.5"><![CDATA[<xen:require js="js/KeywordAlert/editor.js" />
+
+<xen:title>{xen:phrase keywordalert_keyword_edit}: {$keyword.name}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link 'account/keyword-alert'}">{xen:phrase keywordalert_keyword_alert}</xen:breadcrumb>
+</xen:navigation>
+
+<form action="{xen:link 'account/keyword-alert-edit'}" method="POST" class="xenForm AutoValidator" data-redirect="yes">
+
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_name">{xen:phrase keywordalert_name}:</label></dt>
+		<dd>
+			<input id="ctrl_name" type="text" class="textCtrl" name="name" value="{xen:if '{$keyword}', $keyword.name}" />
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_notify_frequency">{xen:phrase keywordalert_notify_frequency}:</label></dt>
+		<dd>
+			<select id="ctrl_notify_frequency" name="notify_frequency" class="textCtrl">
+				<option value="0"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 0'}>{xen:phrase keywordalert_notify_frequency_immediately}</option>
+				<option value="86400"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 86400'}>{xen:phrase keywordalert_notify_frequency_daily}</option>
+				<option value="604800"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 604800'}>{xen:phrase keywordalert_notify_frequency_weekly}</option>
+				<option value="2592000"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 2592000'}>{xen:phrase keywordalert_notify_frequency_monthly}</option>
+				<option value="4"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 4'}>{xen:phrase keywordalert_no_send_email}</option>
+			</select>
+
+			<label>
+				<input type="checkbox" name="send_alert" value="1" {xen:checked '{$keyword.send_alert}'} />
+				{xen:phrase keywordalert_send_alert}
+			</label>
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_keywords">{xen:phrase keywordalert_keywords}:</label></dt>
+		<dd>
+			<ul>
+				<xen:if is="{$keyword} AND {$keyword.keywords}">
+					<xen:foreach loop="$keyword.keywords" value="$aKeyword" i="$i">
+						<li>
+							<xen:include template="keywordalert_edit_keyword">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_KeywordEditor">
+					<xen:include template="keywordalert_edit_keyword">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.keywords}', '{xen:count $keyword.keywords}', '0'}</xen:set>
+						<xen:set var="$aKeyword"></xen:set>
+					</xen:include>
+				</li>
+			</ul>
+			<p class="explain">{xen:phrase keywordalert_keywords_explain}</p>
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit KeywordAlert_ForumModeSelector" data-siblings=".forumSelectors">
+		<dt><label for="ctrl_forum_mode">{xen:phrase keywordalert_forum_mode}:</label></dt>
+		<dd>
+			<select id="ctrl_forum_mode" name="forum_mode" class="textCtrl">
+				<option value="all"{xen:selected '{xen:if '{$keyword}', $keyword.forum_mode} == "all"'}>{xen:phrase keywordalert_forum_mode_all}</option>
+				<option value="whitelist"{xen:selected '{xen:if '{$keyword}', $keyword.forum_mode} == "whitelist"'}>{xen:phrase keywordalert_forum_mode_whitelist}</option>
+				<option value="blacklist"{xen:selected '{xen:if '{$keyword}', $keyword.forum_mode} == "blacklist"'}>{xen:phrase keywordalert_forum_mode_blacklist}</option>
+			</select>
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit forumSelectors">
+		<dt><label for="ctrl_forum_data">&nbsp;</label></dt>
+		<dd>
+			<ul>
+				<xen:if is="{$keyword} AND {$keyword.forum_data}">
+					<xen:foreach loop="$keyword.forum_data" value="$forumId" i="$i">
+						<li>
+							<xen:include template="keywordalert_edit_forum">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_ForumSelector">
+					<xen:include template="keywordalert_edit_forum">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.forum_data}', '{xen:count $keyword.forum_data}', '0'}</xen:set>
+						<xen:set var="$forumId">0</xen:set>
+					</xen:include>
+				</li>
+			</ul>
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_excluded_rules">{xen:phrase keywordalert_excluded_rules}:</label></dt>
+		<dd>
+			<ul>
+				<xen:if is="{$keyword} AND {$keyword.excluded_rules}">
+					<xen:foreach loop="$keyword.excluded_rules" value="$excludedRule" i="$i">
+						<li>
+							<xen:include template="keywordalert_edit_excluded_rule">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_ExcludedRuleEditor">
+					<xen:include template="keywordalert_edit_excluded_rule">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.excluded_rules}', '{xen:count $keyword.excluded_rules}', '0'}</xen:set>
+						<xen:set var="$excludedRule"></xen:set>
+					</xen:include>
+				</li>
+			</ul>
+			<p class="explain">{xen:phrase keywordalert_excluded_rules_explain}</p>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" name="save" value="{xen:phrase save}" accesskey="s" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="keyword_id" value="{xen:if '{$keyword}', $keyword.keyword_id}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
+    <template title="keywordalert_edit_excluded_rule" version_id="1" version_string="0.9"><![CDATA[<input type="text" name="excluded_rules[{$counter}]" value="{$excludedRule}" class="textCtrl" placeholder="{xen:phrase keywordalert_excluded_rule}" />]]></template>
+    <template title="keywordalert_edit_forum" version_id="11" version_string="1.0.4d"><![CDATA[<select name="forum_data[{$counter}]" value="{$forumId}" class="textCtrl">
+	<option value="0">{xen:phrase keywordalert_please_select_one}</option>
+	<xen:foreach loop="$forums" value="$forum">
+		<option value="{$forum.value}"{xen:selected '{$forumId} == {$forum.value}'}>{xen:string repeat, '&nbsp;&nbsp;&nbsp;&nbsp;', {$forum.depth}}{$forum.label}</option>
+	</xen:foreach>
+</select>]]></template>
+    <template title="keywordalert_edit_inline" version_id="12" version_string="1.0.5"><![CDATA[<xen:require css="keywordalert.css" />
+<xen:require css="discussion_list.css" />
+<xen:require css="inline_mod.css" />
+<xen:require js="js/KeywordAlert/editor.js" />
+
+<li>
+	<form action="{xen:link 'account/keyword-alert-edit'}" method="POST"
+		class="discussionListItem KeywordAlert_KeywordListItem inlineCtrlGroup AutoValidator{xen:if '{$KeywordAlert_isAdding}', ' KeywordAlert_InlineKeywordEditorAdding'}">
+		<div class="listBlock keywordName">
+			<input type="text" class="textCtrl" name="name" value="{xen:if '{$keyword}', $keyword.name}" placeholder="{xen:phrase keywordalert_name}" />
+
+			<div class="secondRow">
+				<select name="notify_frequency" class="textCtrl Tooltip" title="{xen:phrase keywordalert_notify_frequency}">
+					<option value="0"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 0'}>{xen:phrase keywordalert_notify_frequency_immediately}</option>
+					<option value="86400"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 86400'}>{xen:phrase keywordalert_notify_frequency_daily}</option>
+					<option value="604800"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 604800'}>{xen:phrase keywordalert_notify_frequency_weekly_short}</option>
+					<option value="2592000"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 2592000'}>{xen:phrase keywordalert_notify_frequency_monthly_short}</option>
+					<option value="4"{xen:selected '{xen:if '{$keyword}', $keyword.notify_frequency} == 4'}>{xen:phrase keywordalert_no_send_email}</option>
+				</select>
+			</div>
+
+			<div class="secondRow">
+				<label>
+					<input type="checkbox" name="send_alert" value="1" {xen:checked '{$keyword} && {$keyword.send_alert}'} />
+					{xen:phrase keywordalert_send_alert}
+				</label>
+			</div>
+		</div>
+		<div class="listBlock keywordKeywords">
+			<ul>
+				<li>
+					{xen:phrase keywordalert_enter_your_keywords_below}:
+					<xen:include template="keywordsalert_help_tooltip">
+						<xen:set var="$tooltip">{xen:phrase keywordalert_keywords_explain}</xen:set>
+					</xen:include>
+				</li>
+				<xen:if is="{$keyword} AND {$keyword.keywords}">
+					<xen:foreach loop="$keyword.keywords" value="$aKeyword" i="$i">
+						<li>
+							<xen:include template="keywordalert_edit_keyword">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_KeywordEditor">
+					<xen:include template="keywordalert_edit_keyword">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.keywords}', '{xen:count $keyword.keywords}', '0'}</xen:set>
+						<xen:set var="$aKeyword"></xen:set>
+					</xen:include>
+				</li>
+			</ul>
+		</div>
+		<div class="listBlock keywordForumMode">
+			<select name="forum_mode" class="textCtrl KeywordAlert_ForumModeSelector" data-siblings=".forumSelectors">
+				<option value="all"{xen:selected '{xen:if '{$keyword}', $keyword.forum_mode} == "all"'}>{xen:phrase keywordalert_forum_mode_all}</option>
+				<option value="whitelist"{xen:selected '{xen:if '{$keyword}', $keyword.forum_mode} == "whitelist"'}>{xen:phrase keywordalert_forum_mode_whitelist}</option>
+				<option value="blacklist"{xen:selected '{xen:if '{$keyword}', $keyword.forum_mode} == "blacklist"'}>{xen:phrase keywordalert_forum_mode_blacklist}</option>
+			</select>
+			<ul class="forumSelectors">
+				<xen:if is="{$keyword} AND {$keyword.forum_data}">
+					<xen:foreach loop="$keyword.forum_data" value="$forumId" i="$i">
+						<li>
+							<xen:include template="keywordalert_edit_forum">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_ForumSelector">
+					<xen:include template="keywordalert_edit_forum">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.forum_data}', '{xen:count $keyword.forum_data}', '0'}</xen:set>
+						<xen:set var="$forumId">0</xen:set>
+					</xen:include>
+				</li>
+			</ul>
+		</div>
+		<div class="listBlock keywordExcludedRules">
+			<ul>
+				<li>
+					{xen:phrase keywordalert_enter_your_excluded_rules_below}:
+				</li>
+				<xen:if is="{$keyword} AND {$keyword.excluded_rules}">
+					<xen:foreach loop="$keyword.excluded_rules" value="$excludedRule" i="$i">
+						<li>
+							<xen:include template="keywordalert_edit_excluded_rule">
+								<xen:set var="$counter">{xen:calc '{$i} - 1'}</xen:set>
+							</xen:include>
+						</li> 
+					</xen:foreach>
+				</xen:if>
+				<li class="KeywordAlert_ExcludedRuleEditor">
+					<xen:include template="keywordalert_edit_excluded_rule">
+						<xen:set var="$counter">{xen:if '{$keyword} AND {$keyword.excluded_rules}', '{xen:count $keyword.excluded_rules}', '0'}</xen:set>
+						<xen:set var="$excludedRule"></xen:set>
+					</xen:include>
+				</li>
+			</ul>
+			<input type="submit" value="{xen:phrase save}" class="textCtrl primary" id="ctrl_submit_{xen:if '{$keyword}', $keyword.keyword_id}" />
+			<input type="reset"  value="{xen:phrase cancel}" class="textCtrl" id="ctrl_reset_{xen:if '{$keyword}', $keyword.keyword_id}" />
+			<input type="hidden" name="keyword_id" value="{xen:if '{$keyword}', $keyword.keyword_id}" />
+			<input type="hidden" name="_xfConfirm" value="1" />
+			<input type="hidden" name="_postedFromInlineEditor" value="1" />
+		</div>
+	</form>
+</li>]]></template>
+    <template title="keywordalert_edit_keyword" version_id="12" version_string="1.0.5"><![CDATA[<input type="text" name="keywords[{$counter}][text]" value="{xen:if '{$aKeyword}', $aKeyword.text}" class="textCtrl" placeholder="{xen:phrase keywordalert_keyword}"/>
+
+<div style="margin-left: 10px;">
+	<label title="{xen:phrase keywordalert_in_title_explain}" class="Tooltip">
+		<input type="checkbox" name="keywords[{$counter}][in_title]" value="1" {xen:checked '{$aKeyword} && {$aKeyword.in_title}'} />
+		{xen:phrase keywordalert_in_title}
+	</label>
+</div>]]></template>
+    <template title="keywordalert_list" version_id="1" version_string="0.9"><![CDATA[<xen:require css="keywordalert.css" />
+<xen:require css="discussion_list.css" />
+<xen:require js="js/KeywordAlert/editor.js" />
+
+<xen:title>{xen:phrase keywordalert_keyword_alert}</xen:title>
+
+<div class="discussionList KeywordAlert_KeywordList">
+	<dl class="sectionHeaders">
+		<dt class="keywordName">{xen:phrase keywordalert_name}</dt>
+		<dd class="keywordKeywords">{xen:phrase keywordalert_keywords}</dd>
+		<dd class="keywordForumMode">{xen:phrase keywordalert_forum_mode}</dd>
+		<dd class="keywordExcludedRules">{xen:phrase keywordalert_excluded_rules}</dd>
+	</dl>
+	<ol class="KeywordAlert_KeywordListItems">
+		<xen:if is="{$keywords}">
+		<xen:foreach loop="$keywords" value="$keyword">
+			<xen:include template="keywordalert_list_one" />
+		</xen:foreach>
+		<xen:else />
+			<li class="primaryContent">{xen:phrase keywordalert_you_havent_setup_any_keyword_alert}</li>
+		</xen:if>
+		<xen:include template="keywordalert_edit_inline">
+			<xen:set var="$keyword"></xen:set>
+			<xen:set var="$KeywordAlert_isAdding">1</xen:set>
+		</xen:include>
+	</ol>
+</div>]]></template>
+    <template title="keywordalert_list_one" version_id="12" version_string="1.0.5"><![CDATA[<xen:require css="keywordalert.css" />
+<xen:require css="discussion_list.css" />
+<xen:require js="js/KeywordAlert/editor.js" />
+
+<li id="keyword-{$keyword.keyword_id}" class="discussionListItem KeywordAlert_KeywordListItem">
+	<div class="listBlock keywordName">
+		<a href="{xen:link 'account/keyword-alert', '', 'edit={$keyword.keyword_id}'}">{$keyword.name}</a>
+		<div class="secondRow">
+			<xen:if is="{$keyword.notify_frequency} != 4">
+				<span title="{xen:phrase keywordalert_notify_frequency}" class="Tooltip sendEmail">
+					{xen:helper keywordalert_notifyfrequency, $keyword.notify_frequency}
+				</span>
+
+				<xen:if is="{$keyword.send_alert}">
+					<span class="plus">+</span>
+				</xen:if>
+			</xen:if>
+
+			<xen:if is="{$keyword.send_alert}">
+				<span class="sendAlert">{xen:phrase alerts}</span>
+			</xen:if>
+
+			<span class="controls">
+				<a href="{xen:link 'account/keyword-alert', '', 'edit={$keyword.keyword_id}'}" class="EditControl">{xen:phrase edit}</a>
+				<a href="{xen:link 'account/keyword-alert', '', 'delete={$keyword.keyword_id}'}" class="OverlayTrigger KeywordAlert_DeleteLink">{xen:phrase delete}</a>
+			</span>
+		</div>
+	</div>
+	<div class="listBlock keywordKeywords">
+		<xen:foreach loop="$keyword.keywords" i="$i" value="$aKeyword">
+			{$aKeyword.text}<xen:if is="{$aKeyword.in_title}"><xen:comment>
+			</xen:comment><sup title="{xen:phrase keywordalert_in_title}" class="Tooltip">T</sup></xen:if><xen:comment>
+			</xen:comment><xen:if is="{$i} < {xen:count $keyword.keywords}">,</xen:if>
+		</xen:foreach>
+	</div>
+	<div class="listBlock keywordForumMode">
+		<xen:if is="{$keyword.forum_mode} == 'all'">
+			{xen:phrase keywordalert_forum_mode_all}
+		<xen:else />
+			{xen:if "{$keyword.forum_mode} == 'whitelist'", {xen:phrase keywordalert_forum_mode_whitelist}, {xen:phrase keywordalert_forum_mode_blacklist}}
+			({xen:number {xen:count $keyword.forum_data}})
+		</xen:if>
+	</div>
+	<div class="listBlock keywordExcludedRules">
+		{xen:helper keywordalert_excludedrulescommaseparated, $keyword.excluded_rules}
+	</div>
+</li>]]></template>
+    <template title="keywordalert_navigation_visitor_tab_links" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper keywordalert_canuse}"><li><a href="{xen:link account/keyword-alert}">{xen:phrase keywordalert_keyword_alert}</a></li></xen:if>]]></template>
+    <template title="keywordsalert_help_tooltip" version_id="3" version_string="0.9.2"><![CDATA[<xen:require js="js/KeywordAlert/editor.js" />
+
+<xen:if is="!{$tooltipOnly}"><span class="KeywordAlert_HelpTooltip">[?]</span></xen:if>
+<div class="xenTooltip">
+	<span class="arrow"></span>
+	{xen:raw $tooltip}
+</div>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="account_wrapper" modification_key="keywordalert_account_wrapper_sidebar" description="Insert link in account wrapper sidebar." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:hook name="account_wrapper_sidebar_settings".+?)(</xen:hook>)#s]]></find>
+      <replace><![CDATA[$1
+<xen:include template="keywordalert_account_wrapper_sidebar" />
+$2]]></replace>
+    </modification>
+    <modification template="navigation_visitor_tab" modification_key="keywordalert_navigation_visitor_tab_links" description="Insert link in visitor tab." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:hook name="navigation_visitor_tab_links1">.+?)(</xen:hook>)#s]]></find>
+      <replace><![CDATA[$1
+<xen:include template="keywordalert_navigation_visitor_tab_links" />
+$2]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
