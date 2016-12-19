@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdCache" title="[bd] Cache" version_string="1.2.0" version_id="1020071" url="" install_callback_class="bdCache_Installer" install_callback_method="install" uninstall_callback_class="bdCache_Installer" uninstall_callback_method="uninstall" visitor_id="1866">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="bdCache_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="front_controller_post_view" execute_order="10" callback_class="bdCache_Listener" callback_method="front_controller_post_view" active="1" hint="" description=""/>
+    <listener event_id="front_controller_pre_dispatch" execute_order="10" callback_class="bdCache_Listener" callback_method="front_controller_pre_dispatch" active="1" hint="" description=""/>
+    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="bdCache_Listener" callback_method="front_controller_pre_view" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="bdCache_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="bdCache_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="bdCache_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="bdCache_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="4294967295" callback_class="bdCache_Listener" callback_method="load_class_XenForo_Model_Thread" active="1" hint="XenForo_Model_Thread" description="XenForo_Model_Thread"/>
+    <listener event_id="template_create" execute_order="10" callback_class="bdCache_Listener" callback_method="template_create" active="1" hint="" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="bdCache_Listener" callback_method="template_hook" active="1" hint="" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="bdCache_Helper_Amp" callback_method="finalize" active="1" hint="bdcache_amp_PAGE_CONTAINER" description="bdCache_Helper_Amp::finalize"/>
+  </code_event_listeners>
+  <cron>
+    <entry entry_id="bdCache_CssHouseKeeping" cron_class="bdCache_CronEntry_CleanUp" cron_method="runCssHouseKeeping" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["6"],"minutes":["29"]}]]></entry>
+  </cron>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="bdCache" display_order="30" debug_only="0"/>
+    <option option_id="bdCache_cachePages" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="100"/>
+    </option>
+    <option option_id="bdCache_cacheThreadLastPage" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="150"/>
+    </option>
+    <option option_id="bdCache_cssToFile" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="1000"/>
+    </option>
+    <option option_id="bdCache_customizedTtlSeconds" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>bdCache_Option::renderCustomizedTtlSeconds</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bdCache" display_order="110"/>
+    </option>
+    <option option_id="bdCache_defaultTtlSeconds" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>600</default_value>
+      <edit_format_params>min=1
+step=60</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="100"/>
+    </option>
+    <option option_id="bdCache_jsDefer" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="2000"/>
+    </option>
+    <option option_id="bdCache_jsDeferBlacklist" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>google_ad
+show_ads.js
+document.write</default_value>
+      <edit_format_params>rows=5</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="2010"/>
+    </option>
+    <option option_id="bdCache_jsDeferWhitelist" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>(!window.jQuery)</default_value>
+      <edit_format_params>rows=5</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="2020"/>
+    </option>
+    <option option_id="bdCache_logThreadView" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="150"/>
+    </option>
+    <option option_id="bdCache_modelThreadCountThreads" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>min=0
+step=30</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="10010"/>
+    </option>
+    <option option_id="bdCache_threadAmp" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdCache" display_order="20010"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="bdcache_cache_ttl_x" version_id="16" version_string="1.0"><![CDATA[Cache TTL: {ttl}]]></phrase>
+    <phrase title="bdcache_customized_ttl" version_id="16" version_string="1.0"><![CDATA[TTL]]></phrase>
+    <phrase title="bdcache_customized_ttl_explain" version_id="16" version_string="1.0"><![CDATA[Enter the number of seconds for which this page should be cached.]]></phrase>
+    <phrase title="bdcache_customize_ttl" version_id="16" version_string="1.0"><![CDATA[Customize TTL]]></phrase>
+    <phrase title="bdcache_customize_ttl_explain" version_id="16" version_string="1.0"><![CDATA[By system configuration, this page cache will be valid for {defaultTtlSeconds} seconds. You can change its TTL (time to live) by checking this box and enter some other value below.]]></phrase>
+    <phrase title="bdcache_purge_cache_for_this_page" version_id="16" version_string="1.0"><![CDATA[Purge Cache]]></phrase>
+    <phrase title="bdcache_update_cache_ttl" version_id="16" version_string="1.0"><![CDATA[Update Cache TTL]]></phrase>
+    <phrase title="cron_entry_bdCache_CssHouseKeeping" version_id="15" version_string="0.9.6"><![CDATA[[bd] Cache: Perform CSS house keeping]]></phrase>
+    <phrase title="option_bdCache_cachePages" version_id="15" version_string="0.9.6"><![CDATA[Cache Pages]]></phrase>
+    <phrase title="option_bdCache_cachePages_explain" version_id="15" version_string="0.9.6"><![CDATA[]]></phrase>
+    <phrase title="option_bdCache_cacheThreadLastPage" version_id="19" version_string="1.0.3"><![CDATA[Cache Thread Last Page]]></phrase>
+    <phrase title="option_bdCache_cacheThreadLastPage_explain" version_id="19" version_string="1.0.3"><![CDATA[Normally, the last page of the thread is not cached to make sure new posts show up immediately. You can enable this option to cache all pages. There is some performance hit if this is enabled.]]></phrase>
+    <phrase title="option_bdCache_cssToFile" version_id="11" version_string="0.9.3c"><![CDATA[CSS to file]]></phrase>
+    <phrase title="option_bdCache_cssToFile_explain" version_id="19" version_string="1.0.3"><![CDATA[With this option enabled, stylesheets will be served via static files. That effectively translates CSS urls:<br/>
+<br/>
+css.php?css=xenforo,form,public<br/>
+<br/>
+into... <br/>
+<br/>
+data/bdCache/css/1234567890/123abc456def789abc012def345abc678.css]]></phrase>
+    <phrase title="option_bdCache_customizedTtlSeconds" version_id="16" version_string="1.0"><![CDATA[Customized TTL]]></phrase>
+    <phrase title="option_bdCache_customizedTtlSeconds_explain" version_id="16" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_bdCache_defaultTtlSeconds" version_id="11" version_string="0.9.3c"><![CDATA[Default TTL]]></phrase>
+    <phrase title="option_bdCache_defaultTtlSeconds_explain" version_id="11" version_string="0.9.3c"><![CDATA[Cached page will be maintained for this many seconds.]]></phrase>
+    <phrase title="option_bdCache_jsDefer" version_id="21" version_string="1.0.5"><![CDATA[Defer JavaScript]]></phrase>
+    <phrase title="option_bdCache_jsDeferBlacklist" version_id="21" version_string="1.0.5"><![CDATA[Defer Blacklist]]></phrase>
+    <phrase title="option_bdCache_jsDeferBlacklist_explain" version_id="21" version_string="1.0.5"><![CDATA[Scripts that contain any of the listed items will not be deferred. Please enter each item in a new line.]]></phrase>
+    <phrase title="option_bdCache_jsDeferWhitelist" version_id="27" version_string="1.0.6d"><![CDATA[Defer Whitelist]]></phrase>
+    <phrase title="option_bdCache_jsDeferWhitelist_explain" version_id="27" version_string="1.0.6d"><![CDATA[Scripts that contain any of the listed items will be deferred. The whitelist rule will bypass blacklist rule if both match the same block. Please enter each item in a new line.]]></phrase>
+    <phrase title="option_bdCache_jsDefer_explain" version_id="21" version_string="1.0.5"><![CDATA[With this option enabled, JavaScripts will be moved to bottom of the page.]]></phrase>
+    <phrase title="option_bdCache_logThreadView" version_id="19" version_string="1.0.3"><![CDATA[Log Thread View]]></phrase>
+    <phrase title="option_bdCache_logThreadView_explain" version_id="19" version_string="1.0.3"><![CDATA[If a thread page is cached, guest hits will not be counted. You can enable this option to keep tracking them. There is some performance hit if this is enabled.]]></phrase>
+    <phrase title="option_bdCache_modelThreadCountThreads" version_id="32" version_string="1.0.8"><![CDATA[Cache countThreads]]></phrase>
+    <phrase title="option_bdCache_modelThreadCountThreads_explain" version_id="32" version_string="1.0.8"><![CDATA[Enter the number of seconds to cache value returned from <span style="font-family: 'Courier New'">XenForo_Model_Thread::countThreads</span>. Enter 0 to disable this feature.]]></phrase>
+    <phrase title="option_bdCache_threadAmp" version_id="1010002" version_string="1.1.0"><![CDATA[Render AMP for thread_view]]></phrase>
+    <phrase title="option_bdCache_threadAmp_explain" version_id="1010002" version_string="1.1.0"><![CDATA[Enable this option to render <a href="https://www.ampproject.org" target="_blank" tabindex="-1">Accelerated Mobile Page</a> for threads.]]></phrase>
+    <phrase title="option_group_bdCache" version_id="11" version_string="0.9.3c"><![CDATA[Performance with [bd] Cache]]></phrase>
+    <phrase title="option_group_bdCache_description" version_id="11" version_string="0.9.3c"><![CDATA[Options here allow you to control how [bd] Cache perform caching for your site.]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="bdcache_amp.css" version_id="1020013" version_string="1.2.0"><![CDATA[/* bdcache_amp_header */
+#logo { float: none; line-height: normal; overflow: hidden; }
+#logo a { display: block; height: auto; }
+
+/* bdcache_amp_share_page_options */
+.sharePage .shareControl.ampSocialShare { margin: 0 5px 0 0; }
+
+/* bdcache_amp_thread_view */
+@media (max-width:{xen:property maxResponsiveMediumWidth}) {
+	.Responsive .messageUserBlock div.avatarHolder { width: 48px; }
+}
+
+<xen:include template="bdcache_amp_EXTRA.css" />]]></template>
+    <template title="bdcache_amp_EXTRA.css" version_id="1020000" version_string="1.2.0"><![CDATA[]]></template>
+    <template title="bdcache_amp_footer" version_id="1020003" version_string="1.2.0"><![CDATA[<xen:include template="footer" />]]></template>
+    <template title="bdcache_amp_header" version_id="1020013" version_string="1.2.0"><![CDATA[<xen:require css="bdcache_amp.css" />
+
+<xen:hook name="bdcache_amp_header">
+<div id="header">
+	<div id="logoBlock">
+		<div class="pageWidth">
+			<div class="pageContent">
+				<div id="logo"><a href="{$logoLink}">
+					<amp-img src="{xen:property imagePath}/bdCache/amp_logo.png" title="{$xenOptions.boardTitle}"
+							 width="600" height="60" layout="fixed" />
+				</a></div>
+				<span class="helper"></span>
+			</div>
+		</div>
+	</div>
+</div>
+</xen:hook>]]></template>
+    <template title="bdcache_amp_PAGE_CONTAINER" version_id="1020009" version_string="1.2.0"><![CDATA[<!doctype html>
+<html ⚡ id="XenForo" lang="{$visitorLanguage.language_code}" dir="{$visitorLanguage.text_direction}" class="Public NoJs NoSidebar Responsive Amp">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+	<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+	<style amp-custom>
+		<xen:if is="{$bdCache_customStylesheets}"><xen:foreach loop="$bdCache_customStylesheets"
+		value="$customStylesheet">{xen:raw $customStylesheet}</xen:foreach></xen:if>
+	</style>
+	<script async src="https://cdn.ampproject.org/v0.js"></script>
+
+	<title><xen:if is="{$title}">{xen:raw $title} | {$xenOptions.boardTitle}<xen:else />{$xenOptions.boardTitle}</xen:if></title>
+
+	<xen:callback class="bdCache_Helper_Amp" method="getHead">
+	<xen:if is="{$head}"><xen:foreach loop="$head" value="$headElement">{xen:raw $headElement}</xen:foreach></xen:if>
+	</xen:callback>
+</head>
+<body{xen:if {$bodyClasses}, ' class="{$bodyClasses}"'}>
+	<xen:callback class="bdCache_Helper_Amp" method="getBody">
+	<header><xen:include template="bdcache_amp_header" /></header>
+
+	<div id="content" class="{$contentTemplate}">
+		<div class="pageWidth">
+			<div class="pageContent">
+				<!-- main content area -->
+
+				<xen:hook name="page_container_content_top" />
+
+				<xen:include template="ad_below_top_breadcrumb" />
+
+				<xen:include template="ad_above_content" />
+
+				<!-- main template -->
+				{xen:raw $contents}
+
+				<xen:include template="ad_below_content" />
+
+			</div>
+		</div>
+	</div>
+
+	<footer><xen:include template="bdcache_amp_footer" /></footer>
+	</xen:callback>
+	<xen:callback class="bdCache_Helper_Amp" method="getAnalytics"></xen:callback>
+</body>
+</html>
+
+<xen:edithint template="PAGE_CONTAINER" />
+<xen:edithint template="bdcache_amp.css" />
+<xen:edithint template="share_page" />
+<xen:edithint template="sidebar_share_page" />
+<xen:edithint template="open_graph_meta" />
+<xen:edithint template="bdcache_amp_share_page_options" />
+<xen:edithint template="bdcache_amp_thread_view" />]]></template>
+    <template title="bdcache_amp_share_page_options" version_id="1020009" version_string="1.2.0"><![CDATA[<xen:set var="$width">60</xen:set>
+<xen:set var="$height">44</xen:set>
+
+<xen:if hascontent="true">
+	<xen:callback class="bdCache_Helper_Amp"
+		method="renderCustomElementScript"
+		params="{xen:array 'element=social-share',
+		'date=201603270956'}"><script async custom-element="amp-social-share"<xen:comment>
+		</xen:comment> src="https://cdn.ampproject.org/v0/amp-social-share-0.1.js"></script>
+	</xen:callback>
+	<xen:contentcheck>
+		<xen:if is="{$xenOptions.facebookLike} && {$xenOptions.facebookAppId}">
+			<div class="facebook shareControl ampSocialShare">
+				<amp-social-share type="facebook"
+					width="{$width}" height="{$height}"
+					data-url="{$url}" data-attribution="{$xenOptions.facebookAppId}">
+				</amp-social-share>
+			</div>
+		</xen:if>
+
+		<xen:if is="{$xenOptions.tweet.enabled}">
+			<div class="tweet shareControl ampSocialShare">
+				<amp-social-share type="twitter"
+					width="{$width}" height="{$height}"
+					data-url="{$url}"{xen:if {$xenOptions.tweet.via},
+					' data-attribution="{$xenOptions.tweet.via}"'}>
+				</amp-social-share>
+			</div>
+		</xen:if>
+
+		<xen:if is="{$xenOptions.plusone}">
+			<div class="plusone shareControl ampSocialShare">
+				<amp-social-share type="gplus"
+					width="{$width}" height="{$height}"
+					data-url="{$url}">
+				</amp-social-share>
+			</div>
+		</xen:if>
+	</xen:contentcheck>
+</xen:if>
+
+<xen:edithint template="share_page" />
+<xen:edithint template="sidebar_share_page" />]]></template>
+    <template title="bdcache_amp_thread_view" version_id="1010002" version_string="1.1.0"><![CDATA[<xen:container var="$containerTemplate">bdcache_amp_PAGE_CONTAINER</xen:container>
+
+<xen:include template="thread_view" />]]></template>
+    <template title="bdcache_misc_update_cache_ttl" version_id="16" version_string="1.0"><![CDATA[
+<xen:title>{xen:phrase bdcache_update_cache_ttl}</xen:title>
+
+<form action="{xen:link 'misc/update-cache-ttl'}"
+	method="post"
+	class="xenForm formOverlay AutoValidator">
+
+	<dl class="ctrlUnit">
+		<dt>&nbsp;</dt>
+		<dd>
+			<label>
+				<input type="checkbox" name="customize" id="ctrl_customize" value="1"
+					{xen:if '{$customizedTtlSeconds} !== null', 'checked="checked"'}
+					class="Disabler" />
+				{xen:phrase bdcache_customize_ttl}
+			</label>
+			<p class="explain">{xen:phrase bdcache_customize_ttl_explain, 'defaultTtlSeconds={xen:helper bdCache_getOption, defaultTtlSeconds}'}</p>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit" id="ctrl_customize_Disabler">
+		<dt><label for="ctrl_ttl">{xen:phrase bdcache_customized_ttl}:</label></dt>
+		<dd>
+			<input type="text" name="ttl" id="ctrl_ttl" value="{$customizedTtlSeconds}" class="textCtrl" />
+			<p class="explain">{xen:phrase bdcache_customized_ttl_explain}</p>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd>
+			<input type="submit" value="{xen:phrase save}" class="button primary" />
+		</dd>
+	</dl>
+
+	<input type="hidden" name="combo" value="{$comboEncrypted}" />
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
+    <template title="bdcache_moderator_bar" version_id="26" version_string="1.0.6c"><![CDATA[<xen:if is="{$visitor.is_admin} AND {xen:helper bdCache_getOption, cachePages}">
+	<xen:if is="{$bdCache_hasOptionAdminPermission}">
+		<a href="{xen:link misc/update-cache-ttl, '', 'combo={$bdCache_comboEncrypted}'}"
+		   class="acp adminLink OverlayTrigger hiddenResponsiveWide hiddenResponsiveMedium hiddenResponsiveNarrow"
+		   data-cacheoverlay="no">
+			<span class="itemLabel">
+				<xen:if is="{$bdCache_ttl} === null">
+					<xen:set var="$bdCache_ttl">{xen:phrase default}</xen:set>
+				</xen:if>
+				{xen:phrase bdcache_cache_ttl_x, 'ttl={$bdCache_ttl}'}
+			</span>
+		</a>
+	</xen:if>
+
+	<a href="{xen:link misc/purge-cache}" class="acp adminLink hiddenResponsiveWide hiddenResponsiveMedium hiddenResponsiveNarrow">
+		<span class="itemLabel">
+			{xen:phrase bdcache_purge_cache_for_this_page}
+		</span>
+	</a>
+</xen:if>]]></template>
+    <template title="bdcache_thread_view_head_links" version_id="1020003" version_string="1.2.0"><![CDATA[<xen:if is="!{$bdCache_isAmp} && {$firstPost.post_id} == {$thread.first_post_id}">
+	<xen:if is="{xen:helper bdCache_getOption, threadAmp}">
+		<link rel="amphtml" href="{xen:link canonical:threads, $thread, 'amp={xen:if
+		'{$firstPost.last_edit_date}', $firstPost.last_edit_date, $thread.post_date}'}">
+	</xen:if>
+</xen:if>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="share_page" modification_key="bdcache_amp_share_page" description="Update share controls for AMP." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:contentcheck>)(.+?)(</xen:contentcheck>)#s]]></find>
+      <replace><![CDATA[$1
+<xen:hook name="bdcache_amp_share_page" params="{xen:array 'url={$url}'}">
+	$2
+</xen:hook>
+$3]]></replace>
+    </modification>
+    <modification template="sidebar_share_page" modification_key="bdcache_amp_sidebar_share_page" description="Update share controls for AMP." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:contentcheck>)(.+?)(</xen:contentcheck>)#s]]></find>
+      <replace><![CDATA[$1
+<xen:hook name="bdcache_amp_sidebar_share_page" params="{xen:array 'url={$url}'}">
+	$2
+</xen:hook>
+$3]]></replace>
+    </modification>
+    <modification template="thread_view" modification_key="bdcache_thread_view_head_links" description="Inject container var $head.bdCache_links for thread view." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#\A.+\z#s]]></find>
+      <replace><![CDATA[$0
+
+<xen:container var="$head.bdCache_links">
+	<xen:include template="bdcache_thread_view_head_links" />
+</xen:container>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
